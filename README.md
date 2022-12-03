@@ -1,0 +1,2 @@
+# core
+Rastrr editor core
