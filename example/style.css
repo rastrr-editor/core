@@ -1,0 +1,17 @@
+body {
+
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+}
+
+.canvas {
+    display: flex;
+    justify-content: center;
+}
+
+#canvas {
+    border: 2px solid black;
+}
