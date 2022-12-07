@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "experimentalDecorators": true,
+    "module": "ESNext",
+    "rootDir": "./src",
+    "moduleResolution": "node",
+
+    "sourceMap": false,
+    "isolatedModules": true,
+    "outDir": "./dist/",
+    "removeComments": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "src/**/*.spec.ts"]
+}
