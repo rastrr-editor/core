@@ -1,6 +1,7 @@
 import { Color, ColorRange } from '../color';
 import { LayerOptions } from './interface';
 
+// TODO refactoring by scheme
 export default class Layer {
   readonly #canvas: HTMLCanvasElement;
   readonly #ctx2d: CanvasRenderingContext2D;

@@ -1,6 +1,6 @@
-import type { Color as AbstractColor, ColorRange } from './interface';
+import type { ColorRange } from './interface';
 
-export default class Color implements AbstractColor {
+export default class Color {
   constructor(
     public r: ColorRange,
     public g: ColorRange,

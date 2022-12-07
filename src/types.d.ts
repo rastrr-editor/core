@@ -9,5 +9,3 @@ type NumberRange<F extends number, T extends number> = Exclude<
   Enumerate<T>,
   Enumerate<F>
 >;
-
-export type ColorRange = NumberRange<0, 256>;
