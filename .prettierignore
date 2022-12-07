@@ -1,5 +1,5 @@
 # Ignore artifacts:
 dist
-example
+example/build
 
 package-lock.json
