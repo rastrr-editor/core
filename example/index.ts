@@ -1,9 +1,10 @@
-import {Layer, Color} from '../dist'
+import {Layer, Color} from '../src'
 
 const canvas = document.getElementById('canvas')
 const inputFile = document.getElementById('input-image')
 const rectBtn = document.getElementById('rect')
 
+// @ts-ignore
 const canvasCtx = canvas.getContext('2d')
 
 const layers = []
@@ -18,6 +19,7 @@ function globalRedraw() {
 }
 
 inputFile.addEventListener('change', function () {
+    // @ts-ignore
     Layer.fromFile(inputFile.files[0]).then(layer => {
         layers.push(layer);
         layer.setAlpha(100)
@@ -32,8 +34,8 @@ rectBtn.addEventListener('click', function () {
     layers.push(lay1)
     layers.push(lay2)
 
-    lay1.rectangle(0, 0, 250, 250, new Color(128, 168, 243, 256))
-    lay2.rectangle(0, 0, 250, 250, new Color(130, 20, 20, 256))
+    lay1.rectangle(0, 0, 250, 250, new Color(128, 168, 243, 100))
+    lay2.rectangle(0, 0, 250, 250, new Color(250, 20, 20, 100))
 
     lay2.setAlpha(150)
 
