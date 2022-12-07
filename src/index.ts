@@ -1,2 +1,2 @@
-export {Color} from './color'
-export {Layer} from './layer'
+export { Color } from './color';
+export { Layer } from './layer';

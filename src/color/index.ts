@@ -1,2 +1,2 @@
-export {default as Color} from './color'
-export {Color as AbstractColor, ColorRange} from './interface'
+export { default as Color } from './color';
+export type { Color as AbstractColor, ColorRange } from './interface';

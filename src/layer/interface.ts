@@ -1,6 +1,6 @@
-import {Color} from "../color";
+import { Color } from '../color';
 
 export type LayerOptions = {
-    color?: Color,
-    image?: ImageBitmap,
-}
+  color?: Color;
+  image?: ImageBitmap;
+};
