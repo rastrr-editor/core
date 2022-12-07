@@ -1,5 +1,5 @@
 {
-  "name": "rastr_core",
+  "name": "@rastrr/core",
   "version": "1.0.0",
   "description": "",
   "main": "",
@@ -17,7 +17,7 @@
     "url": "git+https://github.com/rastrr-editor/core.git"
   },
   "keywords": [],
-  "author": "Albert Tuitsyn <hunteraf@mail.ru>",
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/rastrr-editor/core/issues"
