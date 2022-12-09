@@ -6,10 +6,10 @@ export default class CanvasLayer implements Layer {
   readonly #context: CanvasRenderingContext2D;
   #emitter?: LayerEmitter;
   #opacity: ColorRange = 0;
+  #visible = true;
+  #offset = { x: 0, y: 0 };
   name = 'Unnamed';
-  visible = true;
   locked = false;
-  offset = { x: 0, y: 0 };
 
   constructor(width = 0, height = 0, opts: LayerOptions = {}) {
     if (width === 0 || height === 0) {
@@ -27,10 +27,10 @@ export default class CanvasLayer implements Layer {
 
     this.#context = ctx;
 
-    this.#fill(opts.color ?? new Color(255, 255, 255, 255));
-
     if (opts.image instanceof ImageBitmap) {
       this.#context.drawImage(opts.image, 0, 0, width, height);
+    } else {
+      this.#fill(opts.color ?? new Color(255, 255, 255, 255));
     }
   }
 
@@ -48,6 +48,14 @@ export default class CanvasLayer implements Layer {
 
   get opacity(): ColorRange {
     return this.#opacity;
+  }
+
+  get visible(): boolean {
+    return this.#visible;
+  }
+
+  get offset(): Point {
+    return this.#offset;
   }
 
   #fill(color: Color): void {
@@ -71,6 +79,8 @@ export default class CanvasLayer implements Layer {
       0,
       0
     );
+
+    this.#emitter?.emit('change', this);
   }
 
   setEmitter(emitter: LayerEmitter): void {
@@ -88,6 +98,19 @@ export default class CanvasLayer implements Layer {
       imageData.data[i] = value;
     }
     this.#context.putImageData(imageData, 0, 0);
+
     this.#opacity = value;
+
+    this.#emitter?.emit('change', this);
+  }
+
+  setVisible(value: boolean): void {
+    this.#visible = value;
+    this.#emitter?.emit('change', this);
+  }
+
+  setOffset(value: Point): void {
+    this.#offset = value;
+    this.#emitter?.emit('change', this);
   }
 }

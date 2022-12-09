@@ -1,4 +1,6 @@
-import { Color, LayerFactory } from '../src';
+import { Color, LayerFactory, LayerEmitter } from '../src';
+// @ts-ignore
+import EventEmitter from 'events';
 
 const canvas = document.getElementById('canvas');
 const inputFile = document.getElementById('input-image');
@@ -8,6 +10,9 @@ const rectBtn = document.getElementById('rect');
 const canvasCtx = canvas.getContext('2d');
 
 const layers = [];
+const layerEmitter = new EventEmitter() as LayerEmitter;
+
+layerEmitter.on('change', () => globalRedraw());
 
 function globalRedraw() {
   for (const layer of layers) {
@@ -28,6 +33,8 @@ rectBtn.addEventListener('click', function () {
   const lay1 = LayerFactory.empty(500, 500);
   const lay2 = LayerFactory.filled(500, 500, new Color(255, 100, 100));
 
+  lay2.setEmitter(layerEmitter);
+
   layers.push(lay1);
   layers.push(lay2);
 
@@ -36,8 +43,10 @@ rectBtn.addEventListener('click', function () {
   // @ts-ignore
   lay2.rectangle(0, 0, 250, 250, new Color(250, 20, 20, 255));
 
-  lay2.setOpacity(100);
-  lay2.offset = { x: 100, y: 100 };
+  setTimeout(() => {
+    lay2.setOpacity(100);
+    lay2.setOffset({ x: 100, y: 100 });
+  }, 3000);
 
   globalRedraw();
 });

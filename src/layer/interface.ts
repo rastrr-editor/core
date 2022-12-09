@@ -2,7 +2,7 @@ import { Color, ColorRange } from '~/*';
 import TypedEmitter from 'typed-emitter';
 
 type LayerEvents = {
-  change: () => void;
+  change: (layer: Layer) => void;
 };
 
 export type LayerEmitter = TypedEmitter<LayerEvents>;
@@ -14,13 +14,15 @@ export type LayerOptions = {
 
 export interface Layer {
   name: string;
-  visible: boolean;
   locked: boolean;
-  offset: Point;
   get width(): number;
   get height(): number;
   get opacity(): ColorRange;
+  get visible(): boolean;
+  get offset(): Point;
   setOpacity(value: ColorRange): void;
+  setVisible(value: boolean): void;
+  setOffset(value: Point): void;
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
 }
