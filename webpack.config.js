@@ -79,6 +79,7 @@ module.exports = {
     extensions: ['.js', '.ts', '.css', '.scss'],
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      '~/*': path.resolve(__dirname, 'src'),
     },
   },
   devtool: isDev ? 'source-map' : '',
