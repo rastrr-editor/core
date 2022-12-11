@@ -1,3 +1,4 @@
+import { Color } from '~/color';
 import { default as CanvasLayer } from './canvas-layer';
 import { Layer } from './interface';
 import { Color } from '~/*';

@@ -1,5 +1,5 @@
-import { Color, ColorRange } from '~/*';
 import TypedEmitter from 'typed-emitter';
+import { Color } from '~/color';
 
 type LayerEvents = {
   change: (layer: Layer) => void;

@@ -1,5 +1,5 @@
-import { Color, ColorRange } from '~/*';
-import { LayerOptions, Layer, LayerEmitter } from './interface';
+import { Color, ColorRange } from '~/color';
+import { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 
 export default class CanvasLayer implements Layer {
   readonly #canvas: HTMLCanvasElement;
