@@ -7,6 +7,14 @@ type LayerEvents = {
 
 export type LayerEmitter = TypedEmitter<LayerEvents>;
 
+export type LayerType = 'canvas';
+
+export type LayerConstructor = new (
+  w: number,
+  h: number,
+  opts?: LayerOptions
+) => Layer;
+
 export type LayerOptions = {
   color?: Color;
   image?: ImageBitmap;

@@ -1,16 +1,17 @@
-import { Color, LayerFactory, LayerEmitter } from '../src';
+import { Color, LayerFactory, LayerEmitter, Layer } from '../src';
 // @ts-ignore
 import EventEmitter from 'events';
 
-const canvas = document.getElementById('canvas');
+// @ts-ignore
+const canvas: HTMLCanvasElement = document.getElementById('canvas');
 const inputFile = document.getElementById('input-image');
 const rectBtn = document.getElementById('rect');
 
-// @ts-ignore
 const canvasCtx = canvas.getContext('2d');
 
-const layers = [];
+const layers: Layer[] = [];
 const layerEmitter = new EventEmitter() as LayerEmitter;
+const CanvasFactory = LayerFactory.setType('canvas');
 
 layerEmitter.on('change', () => globalRedraw());
 
@@ -22,7 +23,7 @@ function globalRedraw() {
 
 inputFile.addEventListener('change', function () {
   // @ts-ignore
-  LayerFactory.fromFile(inputFile.files[0]).then((layer) => {
+  CanvasFactory.fromFile(inputFile.files[0]).then((layer) => {
     layers.push(layer);
     layer.setOpacity(100);
     globalRedraw();
@@ -30,8 +31,8 @@ inputFile.addEventListener('change', function () {
 });
 
 rectBtn.addEventListener('click', function () {
-  const lay1 = LayerFactory.empty(500, 500);
-  const lay2 = LayerFactory.filled(500, 500, new Color(255, 100, 100));
+  const lay1 = CanvasFactory.empty(500, 500);
+  const lay2 = CanvasFactory.filled(500, 500, new Color(255, 100, 100));
 
   lay2.setEmitter(layerEmitter);
 
