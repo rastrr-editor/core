@@ -1,8 +1,8 @@
 import { Color, ColorRange } from '~/color';
-import { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
+import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
 
-const COLOR = new Color(255, 255, 255, 255);
+const DEFAULT_BACKGROUND = new Color(255, 255, 255, 255);
 
 export default class CanvasLayer implements Layer {
   readonly #canvas: HTMLCanvasElement;
@@ -33,7 +33,7 @@ export default class CanvasLayer implements Layer {
     if (opts.image instanceof ImageBitmap) {
       this.#context.drawImage(opts.image, 0, 0, width, height);
     } else {
-      this.#fill(opts.color ?? COLOR);
+      this.#fill(opts.color ?? DEFAULT_BACKGROUND);
     }
   }
 
@@ -130,7 +130,12 @@ export default class CanvasLayer implements Layer {
           setColor(
             imageData.data,
             i,
-            new Color(COLOR.r, COLOR.g, COLOR.b, this.#alpha)
+            new Color(
+              DEFAULT_BACKGROUND.r,
+              DEFAULT_BACKGROUND.g,
+              DEFAULT_BACKGROUND.b,
+              this.#alpha
+            )
           );
         }
         col++;
@@ -152,7 +157,12 @@ export default class CanvasLayer implements Layer {
         setColor(
           imageData.data,
           i,
-          new Color(COLOR.r, COLOR.g, COLOR.b, this.#alpha)
+          new Color(
+            DEFAULT_BACKGROUND.r,
+            DEFAULT_BACKGROUND.g,
+            DEFAULT_BACKGROUND.b,
+            this.#alpha
+          )
         );
       }
     }
