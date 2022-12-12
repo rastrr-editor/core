@@ -3,6 +3,7 @@
 Rastrr editor core
 
 ## Quick Start
+
 - `npm i`
 
 ## NPM Scripts
@@ -13,5 +14,3 @@ Rastrr editor core
 - `npm run format` - format code using prettier
 - `npm run format:check` - check formatting errors
 - `npm run lint` - lint code
-
-
