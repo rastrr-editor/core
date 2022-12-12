@@ -23,12 +23,17 @@ export type LayerOptions = {
 export interface Layer {
   name: string;
   locked: boolean;
-  get width(): number;
-  get height(): number;
-  get opacity(): ColorRange;
-  get visible(): boolean;
-  get offset(): Point;
-  setOpacity(value: ColorRange): void;
+  readonly width: number;
+  readonly height: number;
+  readonly opacity: number;
+  readonly visible: boolean;
+  readonly offset: Point;
+  readonly data: Uint8ClampedArray;
+  readonly canvas: CanvasImageSource;
+
+  setWidth(value: number): void;
+  setHeight(value: number): void;
+  setOpacity(value: number): void;
   setVisible(value: boolean): void;
   setOffset(value: Point): void;
   setData(data: Uint8ClampedArray): void;
