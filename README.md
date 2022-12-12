@@ -1,8 +1,7 @@
-# core
-
-Rastrr editor core
+# Rastrr editor core
 
 ## Quick Start
+
 - `npm i`
 
 ## NPM Scripts
