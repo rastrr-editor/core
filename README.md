@@ -1,6 +1,4 @@
-# core
-
-Rastrr editor core
+# Rastrr editor core
 
 ## Quick Start
 
@@ -14,3 +12,5 @@ Rastrr editor core
 - `npm run format` - format code using prettier
 - `npm run format:check` - check formatting errors
 - `npm run lint` - lint code
+
+
