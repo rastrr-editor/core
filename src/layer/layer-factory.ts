@@ -1,9 +1,9 @@
 import { Color } from '~/color';
 import { default as CanvasLayer } from './canvas-layer';
-import { Layer, LayerType, LayerConstructor } from './interface';
+import type { Layer, LayerType, LayerConstructor } from './interface';
 
 export default class LayerFactory {
-  protected static class: LayerConstructor = CanvasLayer;
+  protected static Class: LayerConstructor = CanvasLayer;
 
   static setType(type: LayerType): typeof LayerFactory {
     let impl: LayerConstructor;
@@ -15,21 +15,21 @@ export default class LayerFactory {
         throw new Error('Unknown layer type');
     }
     return class extends this {
-      protected static class = impl;
+      protected static Class = impl;
     };
   }
 
   static empty(w: number, h: number): Layer {
-    return new this.class(w, h);
+    return new this.Class(w, h);
   }
 
   static filled(w: number, h: number, color: Color): Layer {
-    return new this.class(w, h, { color });
+    return new this.Class(w, h, { color });
   }
 
   static fromFile(source: ImageBitmapSource): Promise<Layer> {
     return createImageBitmap(source).then((image) => {
-      return new this.class(image.width, image.height, { image });
+      return new this.Class(image.width, image.height, { image });
     });
   }
 }
