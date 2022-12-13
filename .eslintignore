@@ -1,5 +1,6 @@
 # Ignore artifacts:
 dist
+lib
 example/**
 webpack.config.js
 .eslintrc*
