@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
-    "lib/"
+    "lib/",
+    "global.d.ts"
   ],
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack --mode development",

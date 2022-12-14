@@ -1,6 +1,5 @@
 import TypedEmitter from 'typed-emitter';
 import { Color } from '~/color';
-import type { Point } from '~/types';
 
 type LayerEvents = {
   change: (layer: Layer) => void;
@@ -28,7 +27,7 @@ export interface Layer {
   readonly height: number;
   readonly opacity: number;
   readonly visible: boolean;
-  readonly offset: Point;
+  readonly offset: Rastrr.Point;
   readonly data: Uint8ClampedArray;
   readonly canvas: CanvasImageSource;
 
@@ -36,7 +35,7 @@ export interface Layer {
   setHeight(value: number): void;
   setOpacity(value: number): void;
   setVisible(value: boolean): void;
-  setOffset(value: Point): void;
+  setOffset(value: Rastrr.Point): void;
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
 }

@@ -1,3 +1,1 @@
-import type { NumberRange } from '~/types';
-
-export type ColorRange = NumberRange<0, 256>;
+export type ColorRange = Rastrr.NumberRange<0, 256>;

@@ -1,7 +1,6 @@
 import { Color, ColorRange } from '~/color';
 import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
-import type { Point } from '~/types';
 
 const DEFAULT_BACKGROUND = new Color(255, 255, 255, 255);
 
@@ -62,7 +61,7 @@ export default class CanvasLayer implements Layer {
     return this.#visible;
   }
 
-  get offset(): Point {
+  get offset(): Rastrr.Point {
     return this.#offset;
   }
 
@@ -113,7 +112,7 @@ export default class CanvasLayer implements Layer {
     this.#emitter?.emit('change', this);
   }
 
-  setOffset(value: Point): void {
+  setOffset(value: Rastrr.Point): void {
     this.#offset = value;
     this.#emitter?.emit('change', this);
   }

@@ -7,6 +7,10 @@
    @rastrr:registry=https://npm.pkg.github.com
    ```
 2. Run `npm install @rastrr/core`
+3. Add to your \*.d.ts file:
+   ```ts
+   /// <reference types="@rastrr/core/global" />
+   ```
 
 ## Development
 
