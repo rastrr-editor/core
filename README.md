@@ -4,12 +4,13 @@
 
 1. Create file `.npmrc` in the root of the project with given contents:
    ```
-   @rastrr:registry=https://npm.pkg.github.com
+   @rastrr-editor:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=<PERSONAL ACCESS TOKEN WITH read:packages SCOPE>
    ```
-2. Run `npm install @rastrr/core`
+2. Run `npm install @rastrr-editor/core`
 3. Add to your \*.d.ts file:
    ```ts
-   /// <reference types="@rastrr/core/global" />
+   /// <reference types="@rastrr-editor/core/global" />
    ```
 
 ## Development
@@ -29,7 +30,7 @@
 
 ### Publish to github npm registry
 
-1. Login: `npm login --scope=@rastrr --registry=https://npm.pkg.github.com`. You need to use [specific access token](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries).
+1. Login: `npm login --scope=@rastrr-editor --registry=https://npm.pkg.github.com`. You need to use [specific access token](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries).
 2. Execute the command: `npm publish`
 
 ### Upgrade package version
