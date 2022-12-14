@@ -1,5 +1,6 @@
 import TypedEmitter from 'typed-emitter';
 import { Color } from '~/color';
+import type { Point } from '~/types';
 
 type LayerEvents = {
   change: (layer: Layer) => void;

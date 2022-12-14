@@ -1,6 +1,7 @@
 import { Color, ColorRange } from '~/color';
 import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
+import type { Point } from '~/types';
 
 const DEFAULT_BACKGROUND = new Color(255, 255, 255, 255);
 
