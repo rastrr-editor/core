@@ -1,10 +1,4 @@
-import {
-  Color,
-  LayerFactory,
-  LayerEmitter,
-  LayerListEmitter,
-  LayerList,
-} from '../src';
+import { Color, LayerFactory, LayerList } from '../src';
 // @ts-ignore
 import EventEmitter from 'events';
 
@@ -15,16 +9,9 @@ const rectBtn = document.getElementById('rect');
 
 const canvasCtx = canvas.getContext('2d');
 
-const layerEmitter = new EventEmitter() as LayerEmitter;
-const layerListEmitter = new EventEmitter() as LayerListEmitter;
-const layers = new LayerList().setEmitter(layerListEmitter);
+const layers = new LayerList();
 
 const CanvasFactory = LayerFactory.setType('canvas');
-
-layerEmitter.on('change', () => globalRedraw());
-layerListEmitter.on('add', () => globalRedraw());
-layerListEmitter.on('remove', () => globalRedraw());
-layerListEmitter.on('move', () => globalRedraw());
 
 function globalRedraw() {
   canvasCtx.fillStyle = 'rgba(255,255,255,255)';
@@ -38,8 +25,8 @@ inputFile.addEventListener('change', function () {
   // @ts-ignore
   CanvasFactory.fromFile(inputFile.files[0]).then((layer) => {
     layers.add(layer);
-    layer.setEmitter(layerEmitter);
     layer.setOpacity(0.7);
+    globalRedraw();
   });
 });
 
@@ -49,8 +36,6 @@ rectBtn.addEventListener('click', function () {
 
   lay1.name = 'lay1';
   lay2.name = 'lay2';
-
-  lay2.setEmitter(layerEmitter);
 
   layers.add(lay1);
   layers.add(lay2);
@@ -65,5 +50,9 @@ rectBtn.addEventListener('click', function () {
     lay2.setHeight(200);
     lay2.setOpacity(0.7);
     lay2.setOffset({ x: 100, y: 100 });
+
+    globalRedraw();
   }, 1000);
+
+  globalRedraw();
 });

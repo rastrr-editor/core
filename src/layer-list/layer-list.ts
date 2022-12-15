@@ -1,23 +1,27 @@
 import { Layer } from '~/layer';
 import { LayerListEmitter } from './interface';
+import EventEmitter from 'events';
 
 // TODO refactoring emit events after Render
 export default class LayerList {
   #layers: Layer[] = [];
-  #emitter?: LayerListEmitter;
+  readonly #emitter: LayerListEmitter;
   #active?: number;
+
+  constructor() {
+    this.#emitter = new EventEmitter() as LayerListEmitter;
+  }
+
+  get emitter(): LayerListEmitter {
+    return this.#emitter;
+  }
 
   get activeIndex(): number | undefined {
     return this.#active;
   }
 
   get activeLayer(): Layer | undefined {
-    return this.#active !== undefined ? this.#layers[this.#active] : undefined;
-  }
-
-  setEmitter(emitter: LayerListEmitter): this {
-    this.#emitter = emitter;
-    return this;
+    return this.#layers[this.#active ?? -1];
   }
 
   setActive(index: number): void {
@@ -28,6 +32,7 @@ export default class LayerList {
   }
 
   add(layer: Layer): this {
+    layer.setEmitter(this.#emitter);
     this.#layers.push(layer);
     this.#emitter?.emit('add');
     return this;
@@ -49,12 +54,14 @@ export default class LayerList {
     return layer;
   }
 
+  // TODO change emit event name
   clear(): void {
     this.#layers = [];
     this.#emitter?.emit('remove');
   }
 
   insert(index: number, layer: Layer): void {
+    layer.setEmitter(this.#emitter);
     this.#layers.splice(index, 0, layer);
     this.#emitter?.emit('add');
   }
