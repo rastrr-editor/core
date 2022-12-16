@@ -1,4 +1,4 @@
-import { RenderStrategy } from '~/viewport';
+import type { RenderStrategy } from '~/viewport';
 import { LayerList } from '~/layer-list';
 
 export default class CanvasRenderStrategy implements RenderStrategy {
@@ -17,16 +17,20 @@ export default class CanvasRenderStrategy implements RenderStrategy {
 
   render(): Promise<void> {
     return new Promise((resolve) => {
-      this.#context.clearRect(
-        0,
-        0,
-        this.#context.canvas.width,
-        this.#context.canvas.height
-      );
+      this.#clean();
       for (const layer of this.#layers) {
         this.#context.drawImage(layer.canvas, layer.offset.x, layer.offset.y);
       }
       resolve();
     });
+  }
+
+  #clean(): void {
+    this.#context.clearRect(
+      0,
+      0,
+      this.#context.canvas.width,
+      this.#context.canvas.height
+    );
   }
 }

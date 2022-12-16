@@ -1,31 +1,19 @@
-import { Color, LayerFactory, LayerList } from '../src';
-// @ts-ignore
-import EventEmitter from 'events';
+import { Color, LayerFactory, Viewport } from '../src';
 
 // @ts-ignore
 const canvas: HTMLCanvasElement = document.getElementById('canvas');
 const inputFile = document.getElementById('input-image');
 const rectBtn = document.getElementById('rect');
 
-const canvasCtx = canvas.getContext('2d');
-
-const layers = new LayerList();
-
+const viewport = new Viewport(canvas, 'canvas');
 const CanvasFactory = LayerFactory.setType('canvas');
-
-function globalRedraw() {
-  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-  for (const layer of layers) {
-    canvasCtx.drawImage(layer.canvas, layer.offset.x, layer.offset.y);
-  }
-}
 
 inputFile.addEventListener('change', function () {
   // @ts-ignore
   CanvasFactory.fromFile(inputFile.files[0]).then((layer) => {
-    layers.add(layer);
+    viewport.layers.add(layer);
     layer.setOpacity(0.7);
-    globalRedraw();
+    viewport.render();
   });
 });
 
@@ -36,8 +24,8 @@ rectBtn.addEventListener('click', function () {
   lay1.name = 'lay1';
   lay2.name = 'lay2';
 
-  layers.add(lay1);
-  layers.add(lay2);
+  viewport.layers.add(lay1);
+  viewport.layers.add(lay2);
 
   // @ts-ignore
   // lay1.rectangle(0, 0, 250, 250, new Color(128, 168, 243, 255));
@@ -50,8 +38,8 @@ rectBtn.addEventListener('click', function () {
     lay2.setOpacity(0.7);
     lay2.setOffset({ x: 100, y: 100 });
 
-    globalRedraw();
+    viewport.render();
   }, 1000);
 
-  globalRedraw();
+  viewport.render();
 });
