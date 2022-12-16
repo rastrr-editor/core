@@ -14,8 +14,7 @@ const layers = new LayerList();
 const CanvasFactory = LayerFactory.setType('canvas');
 
 function globalRedraw() {
-  canvasCtx.fillStyle = 'rgba(255,255,255,255)';
-  canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+  canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
   for (const layer of layers) {
     canvasCtx.drawImage(layer.canvas, layer.offset.x, layer.offset.y);
   }
