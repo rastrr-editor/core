@@ -3,38 +3,40 @@ import type {
   RenderStrategy,
   RenderStrategyType,
   RenderStrategyConstructor,
-} from './interface';
-import CanvasRenderStrategy from './render-strategy/canvas-render-strategy';
+} from '~/render';
+import { CanvasRenderStrategy } from '~/render';
 
 export default class Viewport {
   readonly layers = new LayerList();
   readonly strategy: RenderStrategy;
-  readonly container: HTMLCanvasElement;
+  readonly container: HTMLElement;
+  #canvas: HTMLCanvasElement;
   // TODO after implements history
   // history: History;
 
-  constructor(container: HTMLCanvasElement, strategy: RenderStrategyType) {
+  constructor(container: HTMLElement, strategy: RenderStrategyType) {
     this.container = container;
+    this.#canvas = this.#createCanvasInContainer(container);
 
     const Renderer = this.#getClassRenderer(strategy);
-    this.strategy = new Renderer(container, this.layers);
+    this.strategy = new Renderer(this.#canvas, this.layers);
   }
 
   get width(): number {
-    return this.container.width;
+    return this.#canvas.width;
   }
 
   get height(): number {
-    return this.container.height;
+    return this.#canvas.height;
   }
 
   setWidth(value: number): void {
-    this.container.width = value;
+    this.#canvas.width = value;
     this.render();
   }
 
   setHeight(value: number): void {
-    this.container.height = value;
+    this.#canvas.height = value;
     this.render();
   }
 
@@ -49,5 +51,15 @@ export default class Viewport {
       default:
         throw new Error('Unknown render strategy.');
     }
+  }
+
+  #createCanvasInContainer(container: HTMLElement): HTMLCanvasElement {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = container.clientWidth;
+    canvasElement.height = container.clientHeight;
+
+    container.append(canvasElement);
+
+    return canvasElement;
   }
 }

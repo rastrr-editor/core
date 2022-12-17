@@ -1,11 +1,11 @@
 import { Color, LayerFactory, Viewport } from '../src';
 
 // @ts-ignore
-const canvas: HTMLCanvasElement = document.getElementById('canvas');
+const container: HTMLElement = document.getElementById('viewport');
 const inputFile = document.getElementById('input-image');
 const rectBtn = document.getElementById('rect');
 
-const viewport = new Viewport(canvas, 'canvas');
+const viewport = new Viewport(container, 'canvas');
 const CanvasFactory = LayerFactory.setType('canvas');
 
 inputFile.addEventListener('change', function () {
