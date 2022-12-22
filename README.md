@@ -36,3 +36,13 @@
 ### Upgrade package version
 
 1. Execute the command: `npm version patch|minor|major -m "Version description"`
+
+### Development with realtime integration
+
+Sometimes you need to test package integration and make some changes in realtime.
+
+1. Create link to the package `npm link`
+2. Run command `npm build:watch`
+3. Go to the project and add package via link `npm link @rastrr-editor/core`
+
+P.s. if you are using vite, it must be run with force flag, i.e.: `npx vite --force`.
