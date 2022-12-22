@@ -5,21 +5,30 @@ import type {
   RenderStrategyConstructor,
 } from '~/render';
 import { CanvasRenderStrategy } from '~/render';
+import { ViewportEmitter } from './interface';
+import EventEmitter from 'events';
 
 export default class Viewport {
   readonly layers = new LayerList();
   readonly strategy: RenderStrategy;
   readonly container: HTMLElement;
-  #canvas: HTMLCanvasElement;
+  readonly #canvas: HTMLCanvasElement;
+  readonly emitter: ViewportEmitter;
   // TODO after implements history
   // history: History;
 
   constructor(container: HTMLElement, strategy: RenderStrategyType) {
     this.container = container;
-    this.#canvas = this.#createCanvasInContainer(container);
+    this.#canvas = Viewport.#createCanvasInContainer(container);
 
-    const Renderer = this.#getClassRenderer(strategy);
+    const Renderer = Viewport.#getClassRenderer(strategy);
     this.strategy = new Renderer(this.#canvas, this.layers);
+
+    this.emitter = new EventEmitter() as ViewportEmitter;
+  }
+
+  get canvas(): HTMLCanvasElement {
+    return this.#canvas;
   }
 
   get width(): number {
@@ -30,21 +39,23 @@ export default class Viewport {
     return this.#canvas.height;
   }
 
-  setWidth(value: number): void {
+  setWidth(value: number): Promise<void> {
     this.#canvas.width = value;
-    this.render();
+    return this.strategy.render();
   }
 
-  setHeight(value: number): void {
+  setHeight(value: number): Promise<void> {
     this.#canvas.height = value;
-    this.render();
+    return this.strategy.render();
   }
 
   render(): Promise<void> {
     return this.strategy.render();
   }
 
-  #getClassRenderer(strategy: RenderStrategyType): RenderStrategyConstructor {
+  static #getClassRenderer(
+    strategy: RenderStrategyType
+  ): RenderStrategyConstructor {
     switch (strategy) {
       case 'canvas':
         return class extends CanvasRenderStrategy {};
@@ -53,7 +64,7 @@ export default class Viewport {
     }
   }
 
-  #createCanvasInContainer(container: HTMLElement): HTMLCanvasElement {
+  static #createCanvasInContainer(container: HTMLElement): HTMLCanvasElement {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = container.clientWidth;
     canvasElement.height = container.clientHeight;
