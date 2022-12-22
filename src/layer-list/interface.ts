@@ -1,5 +1,5 @@
-import TypedEmitter from 'typed-emitter';
-import { LayerEmitter } from '../layer';
+import type TypedEmitter from 'typed-emitter';
+import type { LayerEmitter } from '~/layer';
 
 // TODO refactoring after implement Render
 type LayerListEvents = {
