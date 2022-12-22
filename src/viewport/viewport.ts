@@ -6,20 +6,60 @@ import type {
 } from '~/render';
 import { CanvasRenderStrategy } from '~/render';
 
+type ViewportOptions = {
+  /**
+   * Render strategy type
+   */
+  strategy: RenderStrategyType;
+  /**
+   * Canvas (not HTML) size, i.e. user specified image size
+   */
+  canvasSize?: Rastrr.Point;
+  /**
+   * Minimal offset between layer and HTML canvas
+   */
+  minOffset?: Rastrr.Point;
+  /**
+   * Delta to correct HTML Canvas width and height
+   */
+  htmlSizeDelta?: Rastrr.Point;
+};
+
 export default class Viewport {
+  readonly container: HTMLElement;
   readonly layers = new LayerList();
   readonly strategy: RenderStrategy;
-  readonly container: HTMLElement;
+  readonly options: Required<ViewportOptions>;
   #canvas: HTMLCanvasElement;
   // TODO after implements history
   // history: History;
 
-  constructor(container: HTMLElement, strategy: RenderStrategyType) {
+  constructor(container: HTMLElement, options: ViewportOptions) {
     this.container = container;
-    this.#canvas = this.#createCanvasInContainer(container);
+    this.options = {
+      ...options,
+      canvasSize: options.canvasSize ?? { x: 0, y: 0 },
+      minOffset: options.minOffset ?? { x: 0, y: 0 },
+      htmlSizeDelta: options.htmlSizeDelta ?? { x: 0, y: 0 },
+    };
+    this.#canvas = this.#createCanvas();
 
-    const Renderer = this.#getClassRenderer(strategy);
+    const Renderer = this.#getClassRenderer(this.options.strategy);
     this.strategy = new Renderer(this.#canvas, this.layers);
+    this.watch();
+  }
+
+  get offset(): Rastrr.Point {
+    return {
+      x: Math.max(
+        this.options.minOffset.x,
+        Math.round(this.width / 2) - Math.round(this.options.canvasSize.x / 2)
+      ),
+      y: Math.max(
+        this.options.minOffset.y,
+        Math.round(this.height / 2) - Math.round(this.options.canvasSize.y / 2)
+      ),
+    };
   }
 
   get width(): number {
@@ -47,19 +87,50 @@ export default class Viewport {
   #getClassRenderer(strategy: RenderStrategyType): RenderStrategyConstructor {
     switch (strategy) {
       case 'canvas':
-        return class extends CanvasRenderStrategy {};
+        return CanvasRenderStrategy;
       default:
         throw new Error('Unknown render strategy.');
     }
   }
 
-  #createCanvasInContainer(container: HTMLElement): HTMLCanvasElement {
+  #createCanvas(): HTMLCanvasElement {
+    const { canvasSize, minOffset, htmlSizeDelta } = this.options;
     const canvasElement = document.createElement('canvas');
-    canvasElement.width = container.clientWidth;
-    canvasElement.height = container.clientHeight;
+    // Get width from container or canvas size
+    canvasElement.width =
+      Math.max(canvasSize.x, this.container.clientWidth + htmlSizeDelta.x) +
+      // if container width is less than canvas width - add min offset
+      (this.container.clientWidth - canvasSize.x <= minOffset.x * 2
+        ? minOffset.x * 2
+        : 0);
+    // Get height from container or canvas size
+    canvasElement.height =
+      Math.max(canvasSize.y, this.container.clientHeight + htmlSizeDelta.y) +
+      // if container height is less than canvas height - add min offset
+      (this.container.clientHeight - canvasSize.y <= minOffset.y * 2
+        ? minOffset.y * 2
+        : 0);
 
-    container.append(canvasElement);
+    this.container.append(canvasElement);
 
     return canvasElement;
+  }
+
+  destroy() {
+    this.#canvas.remove();
+    this.layers.clear();
+  }
+
+  watch() {
+    // TODO: WIP - listen for all events
+    this.layers.emitter.on('add', (layer) => {
+      const { offset: viewportOffset } = this;
+      // Correct layer offset
+      layer.setOffset({
+        x: layer.offset.x + viewportOffset.x,
+        y: layer.offset.y + viewportOffset.y,
+      });
+      this.render();
+    });
   }
 }

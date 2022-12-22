@@ -1,6 +1,6 @@
 import { Layer } from '~/layer';
 import { LayerListEmitter } from './interface';
-import EventEmitter from 'events';
+import EventEmitter from 'eventemitter3';
 
 // TODO refactoring emit events after Render
 export default class LayerList {
@@ -34,7 +34,7 @@ export default class LayerList {
   add(layer: Layer): this {
     layer.setEmitter(this.#emitter);
     this.#layers.push(layer);
-    this.#emitter?.emit('add');
+    this.#emitter?.emit('add', layer);
     return this;
   }
 
@@ -49,27 +49,26 @@ export default class LayerList {
     }
 
     this.#layers.splice(index, 1);
-    this.#emitter?.emit('remove');
+    this.#emitter?.emit('remove', layer);
 
     return layer;
   }
 
-  // TODO change emit event name
   clear(): void {
     this.#layers = [];
-    this.#emitter?.emit('remove');
+    this.#emitter?.emit('clear');
   }
 
   insert(index: number, layer: Layer): void {
     layer.setEmitter(this.#emitter);
     this.#layers.splice(index, 0, layer);
-    this.#emitter?.emit('add');
+    this.#emitter?.emit('add', layer);
   }
 
   changePosition(index: number, newIndex: number): void {
     const layer = this.remove(index);
     this.insert(newIndex, layer);
-    this.#emitter?.emit('move');
+    this.#emitter?.emit('move', layer, { from: index, to: newIndex });
   }
 
   [Symbol.iterator](): IterableIterator<Layer> {

@@ -1,11 +1,11 @@
 import type TypedEmitter from 'typed-emitter';
-import type { LayerEmitter } from '~/layer';
+import type { Layer, LayerEmitter } from '~/layer';
 
-// TODO refactoring after implement Render
 type LayerListEvents = {
-  add: () => void;
-  remove: () => void;
-  move: () => void;
+  add: (layer: Layer) => void;
+  remove: (layer: Layer) => void;
+  move: (layer: Layer, params: { from: number; to: number }) => void;
+  clear: () => void;
 };
 
 export type LayerListEmitter = TypedEmitter<LayerListEvents> & LayerEmitter;
