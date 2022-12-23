@@ -23,6 +23,6 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true
   },
-  "include": ["src", "global.d.ts"],
+  "include": ["src", "global.d.ts", "tests"],
   "exclude": ["node_modules", "src/**/*.spec.ts"]
 }
