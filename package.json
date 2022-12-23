@@ -1,6 +1,6 @@
 {
   "name": "@rastrr-editor/core",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "check": "tsc --noEmit",
     "build": "npm run clean && tsc && tsc-alias",
+    "build:watch": "npm run clean && tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "clean": "del-cli ./lib/*",
@@ -41,6 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^5.41.0",
     "@typescript-eslint/parser": "^5.41.0",
     "babel-loader": "^9.1.0",
+    "concurrently": "^7.6.0",
     "copy-webpack-plugin": "^11.0.0",
     "cross-env": "^7.0.3",
     "del-cli": "5.0.0",
