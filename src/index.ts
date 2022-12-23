@@ -13,4 +13,4 @@ export { CanvasRenderStrategy } from './render';
 export { Viewport } from './viewport';
 export type { ViewportEmitter } from './viewport';
 export type { Command } from './commands';
-export { PencilCommand } from './commands';
+export { LayerCommand, PencilCommand } from './commands';
