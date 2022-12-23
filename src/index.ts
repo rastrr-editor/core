@@ -11,3 +11,4 @@ export type {
 } from './render';
 export { CanvasRenderStrategy } from './render';
 export { Viewport } from './viewport';
+export * from './utils';
