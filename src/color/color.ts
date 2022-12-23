@@ -7,4 +7,8 @@ export default class Color {
     public b: ColorRange,
     public a: ColorRange = 255
   ) {}
+
+  toCssStyle(): string {
+    return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 256})`;
+  }
 }
