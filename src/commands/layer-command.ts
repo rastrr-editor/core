@@ -4,9 +4,11 @@ export default class LayerCommand {
   name = 'unnamed';
   protected context: CanvasRenderingContext2D;
   protected layer: Layer;
+  protected iterator: AsyncIterableIterator<Rastrr.Point>;
 
-  constructor(layer: Layer) {
+  constructor(layer: Layer, iterator: AsyncIterableIterator<Rastrr.Point>) {
     this.layer = layer;
+    this.iterator = iterator;
 
     if (layer.canvas instanceof HTMLCanvasElement) {
       const context = layer.canvas.getContext('2d');
