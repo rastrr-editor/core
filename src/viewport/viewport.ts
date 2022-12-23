@@ -5,8 +5,6 @@ import type {
   RenderStrategyConstructor,
 } from '~/render';
 import { CanvasRenderStrategy } from '~/render';
-import { ViewportEmitter } from './interface';
-import EventEmitter from 'events';
 
 type ViewportOptions = {
   /**
@@ -33,7 +31,6 @@ export default class Viewport {
   readonly strategy: RenderStrategy;
   readonly options: Required<ViewportOptions>;
   #canvas: HTMLCanvasElement;
-  readonly emitter: ViewportEmitter;
   // TODO after implements history
   // history: History;
 
@@ -50,8 +47,6 @@ export default class Viewport {
     const Renderer = Viewport.#getClassRenderer(this.options.strategy);
     this.strategy = new Renderer(this.#canvas, this.layers);
     this.watch();
-
-    this.emitter = new EventEmitter() as ViewportEmitter;
   }
 
   get offset(): Rastrr.Point {

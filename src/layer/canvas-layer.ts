@@ -164,4 +164,8 @@ export default class CanvasLayer implements Layer {
 
     this.#emitter?.emit('change', this);
   }
+
+  emitChange(): void {
+    this.#emitter?.emit('change', this);
+  }
 }

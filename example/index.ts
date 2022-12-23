@@ -5,9 +5,8 @@ const inputFile = document.getElementById('input-image');
 const rectBtn = document.getElementById('rect');
 const pencilBtn = document.getElementById('pencil');
 
-const viewport = new Viewport(container, 'canvas');
+const viewport = new Viewport(container, { strategy: 'canvas' });
 const CanvasFactory = LayerFactory.setType('canvas');
-const pencilCommand = new PencilCommand(viewport);
 
 viewport.layers.emitter.on('change', () => viewport.render());
 viewport.layers.emitter.on('add', () => viewport.render());
@@ -33,6 +32,7 @@ rectBtn.addEventListener('click', function () {
   viewport.layers.add(lay1);
   viewport.layers.add(lay2);
 
+  lay1.setOffset({ x: 0, y: 0 });
   lay2.setOffset({ x: 100, y: 100 });
 
   // setTimeout(() => {
@@ -51,35 +51,25 @@ rectBtn.addEventListener('click', function () {
 });
 
 pencilBtn.addEventListener('click', function () {
-  const onMouseDown = function (e) {
-    const promise = pencilCommand.execute();
-    console.log(promise);
-    promise.then((data) => console.log('final', data));
-
-    container.addEventListener('mousemove', onMouseMove);
-
-    container.addEventListener('mouseup', onMouseUp, { once: true });
-
-    viewport.emitter.emit('mousedown', {
-      x: e.pageX - this.offsetLeft,
-      y: e.pageY - this.offsetTop,
-    });
-  };
-
-  const onMouseMove = function (e) {
-    viewport.emitter.emit('mousemove', {
-      x: e.pageX - this.offsetLeft,
-      y: e.pageY - this.offsetTop,
-    });
-  };
-
-  const onMouseUp = function (e) {
-    viewport.emitter.emit('mouseup', {
-      x: e.pageX - this.offsetLeft,
-      y: e.pageY - this.offsetTop,
-    });
-    container.removeEventListener('mousemove', onMouseMove);
-  };
-
-  container.addEventListener('mousedown', onMouseDown, { once: true });
+  const activeLayer = viewport.layers.activeLayer;
+  if (activeLayer !== undefined) {
+    // @ts-ignore
+    const pencilCommand = new PencilCommand(activeLayer, generate(100, 100));
+    pencilCommand.execute().then((data) => console.log('final', data));
+  }
 });
+
+function* generate(
+  x: number,
+  y: number
+): Generator<Promise<{ x: number; y: number }>> {
+  yield Promise.resolve({ x: x, y: y });
+
+  for (let i = 0; i <= 100; i++) {
+    yield new Promise((resolve) => {
+      setTimeout(() => resolve({ x: x + i, y: y + i }), 100);
+    });
+  }
+
+  return Promise.resolve({ x: 300, y: 300 });
+}
