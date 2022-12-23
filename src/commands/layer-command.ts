@@ -4,9 +4,9 @@ export default class LayerCommand {
   name = 'unnamed';
   protected context: CanvasRenderingContext2D;
   protected layer: Layer;
-  protected iterator: AsyncIterableIterator<Rastrr.Point>;
+  protected iterator: AsyncIterable<Rastrr.Point>;
 
-  constructor(layer: Layer, iterator: AsyncIterableIterator<Rastrr.Point>) {
+  constructor(layer: Layer, iterator: AsyncIterable<Rastrr.Point>) {
     this.layer = layer;
     this.iterator = iterator;
 

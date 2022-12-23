@@ -12,5 +12,5 @@ export type {
 export { CanvasRenderStrategy } from './render';
 export { Viewport } from './viewport';
 export type { Command } from './commands';
-export { LayerCommand, PencilCommand } from './commands';
+export { LayerCommand, BrushCommand } from './commands';
 export * from './utils';

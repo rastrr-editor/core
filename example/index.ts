@@ -1,4 +1,4 @@
-import { Color, LayerFactory, Viewport, PencilCommand } from '../src';
+import { Color, LayerFactory, Viewport, BrushCommand } from '../src';
 
 const container = document.getElementById('viewport');
 const inputFile = document.getElementById('input-image');
@@ -53,9 +53,18 @@ rectBtn.addEventListener('click', function () {
 pencilBtn.addEventListener('click', function () {
   const activeLayer = viewport.layers.activeLayer;
   if (activeLayer !== undefined) {
+    const brushOptions = {
+      color: new Color(100, 200, 30, 50),
+      width: 20,
+    };
     // @ts-ignore
-    const pencilCommand = new PencilCommand(activeLayer, generate(100, 100));
-    pencilCommand.execute().then((data) => console.log('final', data));
+    const brushCommand = new BrushCommand(
+      activeLayer,
+      // @ts-ignore
+      generate(100, 100),
+      brushOptions
+    );
+    brushCommand.execute().then((data) => console.log('final', data));
   }
 });
 
@@ -63,11 +72,21 @@ function* generate(
   x: number,
   y: number
 ): Generator<Promise<{ x: number; y: number }>> {
-  yield Promise.resolve({ x: x, y: y });
+  const current = { x: x, y: y };
+  const step = 4;
 
-  for (let i = 0; i <= 100; i++) {
+  for (let i = 0; i <= 20; i++) {
     yield new Promise((resolve) => {
-      setTimeout(() => resolve({ x: x + i, y: y + i }), 100);
+      current.x += step;
+      current.y += step;
+      setTimeout(() => resolve(current), 50);
+    });
+  }
+  for (let i = 0; i <= 20; i++) {
+    yield new Promise((resolve) => {
+      current.x += step;
+      current.y -= step;
+      setTimeout(() => resolve(current), 50);
     });
   }
 
