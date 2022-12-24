@@ -66,7 +66,7 @@ export default class CanvasLayer implements Layer {
   }
 
   #fill(color: Color): void {
-    this.#context.fillStyle = color.toCssStyle();
+    this.#context.fillStyle = color.toString('rgba');
     this.#context.fillRect(0, 0, this.width, this.height);
   }
 

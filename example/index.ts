@@ -56,7 +56,9 @@ pencilBtn.addEventListener('click', function () {
     const brushOptions = {
       color: new Color(100, 200, 30, 50),
       width: 20,
+      lineCap: 'butt',
     };
+
     // @ts-ignore
     const brushCommand = new BrushCommand(
       activeLayer,
