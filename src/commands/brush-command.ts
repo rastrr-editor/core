@@ -36,10 +36,10 @@ export default class BrushCommand extends LayerCommand implements Command {
     this.context.lineCap = this.options.lineCap;
     this.context.lineJoin = 'round';
     this.context.globalAlpha = this.options.color.a / 256;
-
+    let i = 0;
     for await (const point of this.iterable) {
       currentPosition = point;
-
+      i += 1;
       if (isStart) {
         prevPosition = { ...currentPosition };
         isStart = false;
@@ -53,7 +53,14 @@ export default class BrushCommand extends LayerCommand implements Command {
 
       this.layer.emitChange();
     }
-
+    // FIXME: this is ugly
+    if (i === 1) {
+      this.context.beginPath();
+      this.context.moveTo(prevPosition.x, prevPosition.y);
+      this.context.lineTo(prevPosition.x, prevPosition.y);
+      this.context.stroke();
+      this.layer.emitChange();
+    }
     return true;
   }
 }
