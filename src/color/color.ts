@@ -8,7 +8,7 @@ export default class Color {
     public a: ColorRange = 255
   ) {}
 
-  toString(to: 'hex' | 'rgba' | 'rgb'): string {
+  toString(to: 'hex' | 'hexa' | 'rgba' | 'rgb'): string {
     switch (to) {
       case 'rgba':
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 256})`;
@@ -16,6 +16,8 @@ export default class Color {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
       case 'hex':
         return this.#toHex();
+      case 'hexa':
+        return `${this.#toHex()}${(this.a | (1 << 8)).toString(16).slice(1)}`;
     }
   }
 
@@ -24,7 +26,6 @@ export default class Color {
       ${(this.r | (1 << 8)).toString(16).slice(1)}
       ${(this.g | (1 << 8)).toString(16).slice(1)}
       ${(this.b | (1 << 8)).toString(16).slice(1)}
-      ${(this.a | (1 << 8)).toString(16).slice(1)}
     `.replace(/\s/g, '');
   }
 }
