@@ -134,5 +134,8 @@ export default class Viewport {
       });
       this.render();
     });
+    this.layers.emitter.on('change', () => {
+      this.render();
+    });
   }
 }
