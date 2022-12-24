@@ -2,7 +2,6 @@ import { Layer } from '~/layer';
 import { LayerListEmitter } from './interface';
 import EventEmitter from 'eventemitter3';
 
-// TODO refactoring emit events after Render
 export default class LayerList {
   #layers: Layer[] = [];
   readonly #emitter: LayerListEmitter;

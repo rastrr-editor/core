@@ -66,18 +66,8 @@ export default class CanvasLayer implements Layer {
   }
 
   #fill(color: Color): void {
-    this.#context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${
-      color.a / 256
-    })`;
+    this.#context.fillStyle = color.toString('rgba');
     this.#context.fillRect(0, 0, this.width, this.height);
-  }
-
-  // TODO delete after implements commands
-  rectangle(x: number, y: number, w: number, h: number, color: Color): void {
-    this.#context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${
-      color.a / 256
-    })`;
-    this.#context.fillRect(x, y, w, h);
   }
 
   setData(data: Uint8ClampedArray): void {
@@ -170,6 +160,10 @@ export default class CanvasLayer implements Layer {
     this.#canvas.height = value;
     this.#context.putImageData(imageData, 0, 0);
 
+    this.#emitter?.emit('change', this);
+  }
+
+  emitChange(): void {
     this.#emitter?.emit('change', this);
   }
 }

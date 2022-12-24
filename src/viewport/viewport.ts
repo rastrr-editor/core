@@ -44,7 +44,7 @@ export default class Viewport {
     };
     this.#canvas = this.#createCanvas();
 
-    const Renderer = this.#getClassRenderer(this.options.strategy);
+    const Renderer = Viewport.#getClassRenderer(this.options.strategy);
     this.strategy = new Renderer(this.#canvas, this.layers);
     this.watch();
   }
@@ -70,21 +70,23 @@ export default class Viewport {
     return this.#canvas.height;
   }
 
-  setWidth(value: number): void {
+  setWidth(value: number): Promise<void> {
     this.#canvas.width = value;
-    this.render();
+    return this.render();
   }
 
-  setHeight(value: number): void {
+  setHeight(value: number): Promise<void> {
     this.#canvas.height = value;
-    this.render();
+    return this.render();
   }
 
   render(): Promise<void> {
     return this.strategy.render();
   }
 
-  #getClassRenderer(strategy: RenderStrategyType): RenderStrategyConstructor {
+  static #getClassRenderer(
+    strategy: RenderStrategyType
+  ): RenderStrategyConstructor {
     switch (strategy) {
       case 'canvas':
         return CanvasRenderStrategy;

@@ -38,4 +38,5 @@ export interface Layer {
   setOffset(value: Rastrr.Point): void;
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
+  emitChange(): void;
 }
