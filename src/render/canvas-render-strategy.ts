@@ -20,7 +20,13 @@ export default class CanvasRenderStrategy implements RenderStrategy {
       requestAnimationFrame(() => {
         this.#clean();
         for (const layer of this.#layers) {
-          this.#context.drawImage(layer.canvas, layer.offset.x, layer.offset.y);
+          if (layer.visible) {
+            this.#context.drawImage(
+              layer.canvas,
+              layer.offset.x,
+              layer.offset.y
+            );
+          }
         }
         resolve();
       });
