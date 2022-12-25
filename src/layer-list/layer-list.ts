@@ -11,6 +11,10 @@ export default class LayerList {
     this.#emitter = new EventEmitter() as LayerListEmitter;
   }
 
+  get length() {
+    return this.#layers.length;
+  }
+
   get emitter(): LayerListEmitter {
     return this.#emitter;
   }
@@ -72,5 +76,13 @@ export default class LayerList {
 
   [Symbol.iterator](): IterableIterator<Layer> {
     return this.#layers[Symbol.iterator]();
+  }
+
+  *reverse(): Generator<Layer> {
+    let i = this.#layers.length - 1;
+    while (i >= 0) {
+      yield this.#layers[i];
+      i -= 1;
+    }
   }
 }
