@@ -23,6 +23,7 @@ export type LayerOptions = {
 export interface Layer {
   name: string;
   locked: boolean;
+  readonly type: LayerType;
   readonly width: number;
   readonly height: number;
   readonly opacity: number;
@@ -31,6 +32,7 @@ export interface Layer {
   readonly data: Uint8ClampedArray;
   readonly canvas: CanvasImageSource;
 
+  drawContents(layer: Layer): void;
   setWidth(value: number): void;
   setHeight(value: number): void;
   setOpacity(value: number): void;

@@ -5,6 +5,7 @@ import { toColorRange, setColor } from './helpers';
 export default class CanvasLayer implements Layer {
   readonly #canvas: HTMLCanvasElement;
   readonly #context: CanvasRenderingContext2D;
+  readonly type = 'canvas';
   #options: LayerOptions;
   #emitter?: LayerEmitter;
   #alpha: ColorRange = 255;
@@ -68,6 +69,10 @@ export default class CanvasLayer implements Layer {
   #fill(color: Color): void {
     this.#context.fillStyle = color.toString('rgba');
     this.#context.fillRect(0, 0, this.width, this.height);
+  }
+
+  drawContents(layer: Layer): void {
+    this.#context.drawImage(layer.canvas, 0, 0);
   }
 
   setData(data: Uint8ClampedArray): void {
