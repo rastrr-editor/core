@@ -11,11 +11,12 @@ type BrushOptions = {
 
 export default class BrushCommand extends LayerCommand implements Command {
   readonly options: BrushOptions;
+  readonly name = 'Кисть';
 
   constructor(
     layer: Layer,
     iterable: AsyncIterable<Rastrr.Point>,
-    options?: BrushOptions
+    options?: Partial<BrushOptions>
   ) {
     super(layer, iterable);
     this.options = {
@@ -27,38 +28,26 @@ export default class BrushCommand extends LayerCommand implements Command {
   }
 
   async execute(): Promise<boolean> {
-    let isStart = true;
-    let currentPosition: Rastrr.Point = { x: 0, y: 0 };
-    let prevPosition: Rastrr.Point = { x: 0, y: 0 };
+    let prevPosition: Rastrr.Point | null = null;
 
     this.context.strokeStyle = this.options.color.toString('rgb');
     this.context.lineWidth = this.options.width;
     this.context.lineCap = this.options.lineCap;
     this.context.lineJoin = 'round';
     this.context.globalAlpha = this.options.color.a / 256;
-    let i = 0;
     for await (const point of this.iterable) {
-      currentPosition = point;
-      i += 1;
-      if (isStart) {
-        prevPosition = { ...currentPosition };
-        isStart = false;
-      } else {
+      // Deduplicate repeating points
+      if (prevPosition?.x !== point.x || prevPosition?.y !== point.y) {
         this.context.beginPath();
-        this.context.moveTo(prevPosition.x, prevPosition.y);
-        this.context.lineTo(currentPosition.x, currentPosition.y);
+        this.context.moveTo(
+          (prevPosition || point).x,
+          (prevPosition || point).y
+        );
+        this.context.lineTo(point.x, point.y);
         this.context.stroke();
-        prevPosition = { ...currentPosition };
+        prevPosition = point;
       }
 
-      this.layer.emitChange();
-    }
-    // FIXME: this is ugly
-    if (i === 1) {
-      this.context.beginPath();
-      this.context.moveTo(prevPosition.x, prevPosition.y);
-      this.context.lineTo(prevPosition.x, prevPosition.y);
-      this.context.stroke();
       this.layer.emitChange();
     }
     return true;
