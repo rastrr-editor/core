@@ -24,12 +24,12 @@ export default class BrushCommand extends LayerCommand implements Command {
     if (layers.activeLayer == null || layers.activeIndex == null) {
       throw new TypeError('Active layer is not set');
     }
-    const { activeLayer: layer, activeIndex: insertIndex } = layers;
+    const { activeLayer: layer, activeIndex } = layers;
     const tmpLayer = LayerFactory.setType(layer.type).empty(
       layer.width,
       layer.height
     );
-
+    const insertIndex = activeIndex + 1;
     // TODO: layer should be marked as temporary
     layers.insert(insertIndex, tmpLayer);
 
@@ -71,7 +71,7 @@ export default class BrushCommand extends LayerCommand implements Command {
     // If active layer hasn't changed - draw contents from temporary layer
     if (
       this.#layers.activeLayer != null &&
-      this.#layers.activeIndex === this.#insertIndex
+      this.#layers.activeIndex === this.#insertIndex - 1
     ) {
       this.#layers.activeLayer.drawContents(layer);
       this.#layers.activeLayer.emitChange();
