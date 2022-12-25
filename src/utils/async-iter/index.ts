@@ -4,5 +4,7 @@ export { default as seq } from './seq';
 export { default as take } from './take';
 export { default as any } from './any';
 export { default as every } from './every';
+export { default as until } from './until';
 export { default as repeat } from './repeat';
+export { default as toAsyncIter } from './toAsyncIter';
 export * from './types';

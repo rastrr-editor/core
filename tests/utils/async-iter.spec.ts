@@ -1,5 +1,14 @@
 import sleep from '~/utils/sleep';
-import { filter, map, seq, take, every, any, repeat } from '~/utils/async-iter';
+import {
+  filter,
+  map,
+  seq,
+  take,
+  every,
+  any,
+  repeat,
+  until,
+} from '~/utils/async-iter';
 
 async function* asyncGenerator(): AsyncGenerator<number> {
   for (let i = 0; i < 10; i += 1) {
@@ -81,6 +90,22 @@ describe('async-iter', () => {
       const array: number[] = [];
       const iterable = asyncGenerator();
       for await (const item of every(iterable, (i) => i < 3)) {
+        array.push(item);
+      }
+      const rest: number[] = [];
+      for await (const i of iterable) {
+        rest.push(i);
+      }
+      expect(array).toEqual([0, 1, 2]);
+      expect(rest).toEqual([]);
+    });
+  });
+
+  describe('until', () => {
+    test('until should end underlying iterator', async () => {
+      const array: number[] = [];
+      const iterable = asyncGenerator();
+      for await (const item of until(iterable, (i) => i >= 2)) {
         array.push(item);
       }
       const rest: number[] = [];
