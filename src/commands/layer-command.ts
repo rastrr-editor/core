@@ -1,7 +1,7 @@
 import { Layer } from '~/layer';
 
 export default class LayerCommand {
-  name = 'unnamed';
+  readonly name: string = 'unnamed';
   protected context: CanvasRenderingContext2D;
   protected layer: Layer;
   protected iterable: AsyncIterable<Rastrr.Point>;
