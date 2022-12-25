@@ -2,11 +2,10 @@ import { Color, ColorRange } from '~/color';
 import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
 
-const DEFAULT_BACKGROUND = new Color(255, 255, 255, 255);
-
 export default class CanvasLayer implements Layer {
   readonly #canvas: HTMLCanvasElement;
   readonly #context: CanvasRenderingContext2D;
+  #options: LayerOptions;
   #emitter?: LayerEmitter;
   #alpha: ColorRange = 255;
   #visible = true;
@@ -29,11 +28,12 @@ export default class CanvasLayer implements Layer {
     }
 
     this.#context = ctx;
+    this.#options = opts;
 
     if (opts.image instanceof ImageBitmap) {
       this.#context.drawImage(opts.image, 0, 0, width, height);
-    } else {
-      this.#fill(opts.color ?? DEFAULT_BACKGROUND);
+    } else if (opts.color) {
+      this.#fill(opts.color);
     }
   }
 
@@ -89,7 +89,7 @@ export default class CanvasLayer implements Layer {
 
     const imageData = this.#context.getImageData(0, 0, this.width, this.height);
     for (let i = 3; i < imageData.data.length; i += 4) {
-      // TODO calculate opacity with current pixel
+      // TODO calculate opacity preserving initial alpha
       imageData.data[i] = this.#alpha;
     }
     this.#context.putImageData(imageData, 0, 0);
@@ -116,17 +116,8 @@ export default class CanvasLayer implements Layer {
         if (col >= value) {
           col = 0;
         }
-        if (col >= this.width) {
-          setColor(
-            imageData.data,
-            i,
-            new Color(
-              DEFAULT_BACKGROUND.r,
-              DEFAULT_BACKGROUND.g,
-              DEFAULT_BACKGROUND.b,
-              this.#alpha
-            )
-          );
+        if (col >= this.width && this.#options.color) {
+          setColor(imageData.data, i, this.#options.color);
         }
         col++;
       }
@@ -141,19 +132,13 @@ export default class CanvasLayer implements Layer {
   setHeight(value: number): void {
     const imageData = this.#context.getImageData(0, 0, this.width, value);
 
-    if (value > this.height) {
-      let i = this.width * this.height * 4;
-      for (i; i < imageData.data.length; i += 4) {
-        setColor(
-          imageData.data,
-          i,
-          new Color(
-            DEFAULT_BACKGROUND.r,
-            DEFAULT_BACKGROUND.g,
-            DEFAULT_BACKGROUND.b,
-            this.#alpha
-          )
-        );
+    if (value > this.height && this.#options.color) {
+      for (
+        let i = this.width * this.height * 4;
+        i < imageData.data.length;
+        i += 4
+      ) {
+        setColor(imageData.data, i, this.#options.color);
       }
     }
 
