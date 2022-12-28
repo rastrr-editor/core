@@ -124,7 +124,6 @@ export default class Viewport {
   }
 
   watch() {
-    // TODO: WIP - listen for all events
     this.layers.emitter.on('add', (layer) => {
       const { offset: viewportOffset } = this;
       // Correct layer offset
@@ -135,6 +134,15 @@ export default class Viewport {
       this.render();
     });
     this.layers.emitter.on('change', () => {
+      this.render();
+    });
+    this.layers.emitter.on('move', () => {
+      this.render();
+    });
+    this.layers.emitter.on('remove', () => {
+      this.render();
+    });
+    this.layers.emitter.on('clear', () => {
       this.render();
     });
   }
