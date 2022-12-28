@@ -16,6 +16,7 @@ export type LayerConstructor = new (
 ) => Layer;
 
 export type LayerOptions = {
+  id?: string;
   color?: Color;
   image?: ImageBitmap;
 };
@@ -23,6 +24,7 @@ export type LayerOptions = {
 export interface Layer {
   name: string;
   locked: boolean;
+  readonly id: string;
   readonly type: LayerType;
   readonly width: number;
   readonly height: number;

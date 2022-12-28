@@ -1,8 +1,10 @@
+import uniqid from 'uniqid';
 import { Color, ColorRange } from '~/color';
 import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
 
 export default class CanvasLayer implements Layer {
+  readonly id: string;
   readonly #canvas: HTMLCanvasElement;
   readonly #context: CanvasRenderingContext2D;
   readonly type = 'canvas';
@@ -18,7 +20,7 @@ export default class CanvasLayer implements Layer {
     if (width === 0 || height === 0) {
       throw new Error('Incorrect constructor parameters.');
     }
-
+    this.id = opts.id ?? uniqid();
     this.#canvas = document.createElement('canvas');
     this.#canvas.width = width;
     this.#canvas.height = height;
