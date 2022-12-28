@@ -49,8 +49,15 @@ describe('LayerList', () => {
       expect(getLayerIds()).toEqual([layers.get(0)?.id, ...layerIds]);
     });
 
+    test('should insert layer at the end of the list', () => {
+      const layerIds = getLayerIds();
+      layers.insert(4, createLayer());
+      expect(getLayerIds()).toEqual([...layerIds, layers.get(4)?.id]);
+    });
+
     test('should throw if insert index is out of bounds', () => {
-      expect(() => layers.changePosition(0, 4)).toThrow(RangeError);
+      expect(() => layers.insert(-1, createLayer())).toThrow(RangeError);
+      expect(() => layers.insert(5, createLayer())).toThrow(RangeError);
     });
 
     test('should update active index if insert is perfomed in position of active layer', () => {

@@ -73,7 +73,7 @@ export default class LayerList {
     this.assertLayerIsUnique(layer);
     this.#layerIds.add(layer.id);
     layer.setEmitter(this.#emitter);
-    if (index >= this.length) {
+    if (index < 0 || index > this.length) {
       throw new RangeError(`Index (${index}) out of bounds`);
     }
     this.#layers.splice(index, 0, layer);
