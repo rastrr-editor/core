@@ -1,6 +1,5 @@
 import { Command } from '~/commands';
 import LayerCommand from './layer-command';
-import { LayerFactory } from '~/layer';
 import { Color } from '~/color';
 import { LayerList } from '~/layer-list';
 
@@ -13,29 +12,14 @@ type BrushOptions = {
 export default class BrushCommand extends LayerCommand implements Command {
   readonly options: BrushOptions;
   readonly name = 'Кисть';
-  #layers: LayerList;
-  #insertIndex: number;
 
   constructor(
     layers: LayerList,
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<BrushOptions>
   ) {
-    if (layers.activeLayer == null || layers.activeIndex == null) {
-      throw new TypeError('Active layer is not set');
-    }
-    const { activeLayer: layer, activeIndex } = layers;
-    const tmpLayer = LayerFactory.setType(layer.type).empty(
-      layer.width,
-      layer.height
-    );
-    const insertIndex = activeIndex + 1;
-    // TODO: layer should be marked as temporary
-    layers.insert(insertIndex, tmpLayer);
+    super(layers, iterable, 'temporary');
 
-    super(tmpLayer, iterable);
-    this.#insertIndex = insertIndex;
-    this.#layers = layers;
     this.options = {
       ...options,
       color: options?.color ?? new Color(0, 0, 0, 255),
@@ -66,16 +50,9 @@ export default class BrushCommand extends LayerCommand implements Command {
         this.layer.emitChange();
       }
     }
-    // Remove temporary layer
-    const layer = this.#layers.remove(this.#insertIndex);
-    // If active layer hasn't changed - draw contents from temporary layer
-    if (
-      this.#layers.activeLayer != null &&
-      this.#layers.activeIndex === this.#insertIndex - 1
-    ) {
-      this.#layers.activeLayer.drawContents(layer);
-      this.#layers.activeLayer.emitChange();
-    }
+
+    this.deleteTemporaryData();
+
     return true;
   }
 }
