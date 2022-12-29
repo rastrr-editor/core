@@ -1,15 +1,16 @@
-import { Command } from '~/commands';
-import LayerCommand from './layer-command';
+import type { Command, CommandOptions } from '~/commands';
+import { ShapeCommand } from '~/commands';
 import { Color } from '~/color';
 import { LayerList } from '~/layer-list';
+import { applyOptions } from '~/commands/helpers';
 
-type RectOptions = {
+interface RectOptions extends CommandOptions {
   color: Color;
   width: number;
   lineCap: 'butt' | 'round' | 'square';
-};
+}
 
-export default class RectCommand extends LayerCommand implements Command {
+export default class RectCommand extends ShapeCommand implements Command {
   readonly options: RectOptions;
   readonly name = 'Прямоугольник';
 
@@ -18,7 +19,7 @@ export default class RectCommand extends LayerCommand implements Command {
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<RectOptions>
   ) {
-    super(layers, iterable, 'new');
+    super(layers, iterable);
 
     this.options = {
       ...options,
@@ -31,12 +32,9 @@ export default class RectCommand extends LayerCommand implements Command {
   async execute(): Promise<boolean> {
     let startPosition: Rastrr.Point | null = null;
 
-    this.context.strokeStyle = this.options.color.toString('rgb');
-    this.context.lineWidth = this.options.width;
-    this.context.lineCap = this.options.lineCap;
-    this.context.lineJoin = 'round';
-    this.context.globalAlpha = this.options.color.a / 256;
+    applyOptions(this.context, this.options);
     this.context.globalCompositeOperation = 'copy';
+
     for await (const point of this.iterable) {
       if (!startPosition) {
         startPosition = point;
@@ -56,10 +54,6 @@ export default class RectCommand extends LayerCommand implements Command {
         this.layer.emitChange();
       }
     }
-
-    this.deleteTemporaryData();
-
-    console.log('layers', this.layers);
 
     return true;
   }

@@ -1,24 +1,35 @@
-import { Command } from '~/commands';
-import LayerCommand from './layer-command';
+import type { Command } from '~/commands';
+import { CommandOptions, LayerCommand } from '~/commands';
 import { Color } from '~/color';
 import { LayerList } from '~/layer-list';
+import {
+  createTemporaryLayer,
+  commitTemporaryData,
+  applyOptions,
+} from '~/commands/helpers';
 
-type BrushOptions = {
+interface BrushOptions extends CommandOptions {
   color: Color;
   width: number;
   lineCap: 'butt' | 'round' | 'square';
-};
+}
 
 export default class BrushCommand extends LayerCommand implements Command {
   readonly options: BrushOptions;
   readonly name = 'Кисть';
+  #layers: LayerList;
+  #insertIndex: number;
 
   constructor(
     layers: LayerList,
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<BrushOptions>
   ) {
-    super(layers, iterable, 'temporary');
+    const { layer, index } = createTemporaryLayer(layers);
+
+    super(layer, iterable);
+    this.#insertIndex = index;
+    this.#layers = layers;
 
     this.options = {
       ...options,
@@ -31,12 +42,9 @@ export default class BrushCommand extends LayerCommand implements Command {
   async execute(): Promise<boolean> {
     let prevPosition: Rastrr.Point | null = null;
 
-    this.context.strokeStyle = this.options.color.toString('rgb');
-    this.context.lineWidth = this.options.width;
-    this.context.lineCap = this.options.lineCap;
-    this.context.lineJoin = 'round';
-    this.context.globalAlpha = this.options.color.a / 256;
+    applyOptions(this.context, this.options);
     this.context.globalCompositeOperation = 'copy';
+
     this.context.beginPath();
     for await (const point of this.iterable) {
       if (!prevPosition) {
@@ -51,7 +59,7 @@ export default class BrushCommand extends LayerCommand implements Command {
       }
     }
 
-    this.deleteTemporaryData();
+    commitTemporaryData(this.#layers, this.#insertIndex);
 
     return true;
   }
