@@ -148,10 +148,13 @@ describe('LayerList', () => {
       expect(layers.activeIndex).toEqual(1);
     });
 
-    test('should not update active index which is before the moved layer', () => {
+    test('should not update active index', () => {
       layers.setActive(0);
       layers.changePosition(2, 3);
       expect(layers.activeIndex).toEqual(0);
+      layers.setActive(3);
+      layers.changePosition(2, 1);
+      expect(layers.activeIndex).toEqual(3);
     });
 
     test('should update active index correctly after multiple swaps', () => {
@@ -159,6 +162,8 @@ describe('LayerList', () => {
       layers.changePosition(0, 3);
       expect(layers.activeIndex).toEqual(2);
       layers.changePosition(3, 0);
+      expect(layers.activeIndex).toEqual(3);
+      layers.changePosition(0, 2);
       expect(layers.activeIndex).toEqual(3);
     });
   });

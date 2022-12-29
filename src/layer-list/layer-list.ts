@@ -98,10 +98,11 @@ export default class LayerList {
     if (index === this.#active) {
       this.#active = newIndex;
     } else if (this.#active !== undefined) {
-      if (this.#active > index) {
-        this.#active -= 1;
-      } else if (this.#active > newIndex) {
+      if (index > this.#active && newIndex <= this.#active) {
         this.#active += 1;
+      }
+      if (index < this.#active && newIndex >= this.#active) {
+        this.#active -= 1;
       }
     }
 
