@@ -94,11 +94,17 @@ export default class LayerList {
     if (layer === undefined) {
       throw new Error(`Layer is not defined at index ${index}`);
     }
+
     if (index === this.#active) {
       this.#active = newIndex;
-    } else if (this.#active !== undefined && this.#active > index) {
-      this.#active -= 1;
+    } else if (this.#active !== undefined) {
+      if (this.#active > index) {
+        this.#active -= 1;
+      } else if (this.#active > newIndex) {
+        this.#active += 1;
+      }
     }
+
     this.#layers.splice(newIndex, 0, layer);
     this.#emitter?.emit('move', layer, { from: index, to: newIndex });
   }

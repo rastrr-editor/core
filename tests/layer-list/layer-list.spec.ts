@@ -153,5 +153,13 @@ describe('LayerList', () => {
       layers.changePosition(2, 3);
       expect(layers.activeIndex).toEqual(0);
     });
+
+    test('should update active index correctly after multiple swaps', () => {
+      layers.setActive(3);
+      layers.changePosition(0, 3);
+      expect(layers.activeIndex).toEqual(2);
+      layers.changePosition(3, 0);
+      expect(layers.activeIndex).toEqual(3);
+    });
   });
 });
