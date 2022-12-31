@@ -27,7 +27,8 @@ export default class BrushCommand extends LayerCommand implements Command {
     const { activeLayer: layer, activeIndex } = layers;
     const tmpLayer = LayerFactory.setType(layer.type).empty(
       layer.width,
-      layer.height
+      layer.height,
+      { opacity: layer.opacity }
     );
     const insertIndex = activeIndex + 1;
     // TODO: layer should be marked as temporary
@@ -51,7 +52,9 @@ export default class BrushCommand extends LayerCommand implements Command {
     this.context.lineWidth = this.options.width;
     this.context.lineCap = this.options.lineCap;
     this.context.lineJoin = 'round';
-    this.context.globalAlpha = this.options.color.a / 256;
+    // TODO: preserve alpha of the brush without applied layer opacity
+    this.context.globalAlpha =
+      (this.options.color.a / 255) * this.layer.opacity;
     this.context.globalCompositeOperation = 'copy';
     this.context.beginPath();
     for await (const point of this.iterable) {
