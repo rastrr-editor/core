@@ -48,6 +48,15 @@ describe('async-iter', () => {
         '18',
       ]);
     });
+
+    test('should resolve promise from predicate', async () => {
+      const array: number[] = [];
+      const iterable = map(asyncGenerator(), (i) => Promise.resolve(i * 2));
+      for await (const item of filter(iterable, (i) => i < 8)) {
+        array.push(item);
+      }
+      expect(array).toEqual([0, 2, 4, 6]);
+    });
   });
 
   describe('seq', () => {

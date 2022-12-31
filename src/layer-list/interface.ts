@@ -5,6 +5,7 @@ type LayerListEvents = {
   add: (layer: Layer) => void;
   remove: (layer: Layer) => void;
   move: (layer: Layer, params: { from: number; to: number }) => void;
+  activeChange: (index: number, layer: Layer) => void;
   clear: () => void;
 };
 

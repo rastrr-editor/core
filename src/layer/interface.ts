@@ -3,6 +3,7 @@ import { Color } from '~/color';
 
 type LayerEvents = {
   change: (layer: Layer) => void;
+  opacityChange: (layer: Layer, params: { prev: number; next: number }) => void;
 };
 
 export type LayerEmitter = TypedEmitter<LayerEvents>;
@@ -16,13 +17,16 @@ export type LayerConstructor = new (
 ) => Layer;
 
 export type LayerOptions = {
+  id?: string;
   color?: Color;
   image?: ImageBitmap;
+  opacity?: number;
 };
 
 export interface Layer {
   name: string;
   locked: boolean;
+  readonly id: string;
   readonly type: LayerType;
   readonly width: number;
   readonly height: number;
@@ -41,4 +45,5 @@ export interface Layer {
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
   emitChange(): void;
+  commitContentChanges(): void;
 }
