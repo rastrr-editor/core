@@ -1,12 +1,13 @@
 import { Layer } from '~/layer';
+import { Command } from './interface';
 
-export default abstract class LayerCommand {
+export default abstract class LayerCommand implements Command {
   readonly name: string = 'unnamed';
   protected context: CanvasRenderingContext2D;
   protected layer: Layer;
   protected iterable: AsyncIterable<Rastrr.Point>;
 
-  protected constructor(layer: Layer, iterable: AsyncIterable<Rastrr.Point>) {
+  constructor(layer: Layer, iterable: AsyncIterable<Rastrr.Point>) {
     this.layer = layer;
     this.iterable = iterable;
 
@@ -20,4 +21,6 @@ export default abstract class LayerCommand {
       throw new Error('Incorrect layer param');
     }
   }
+
+  abstract execute(): Promise<boolean>;
 }
