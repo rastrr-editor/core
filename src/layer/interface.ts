@@ -43,4 +43,5 @@ export interface Layer {
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
   emitChange(): void;
+  commitContentChanges(): void;
 }

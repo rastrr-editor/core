@@ -11,6 +11,7 @@ export default class CanvasLayer implements Layer {
   #options: LayerOptions;
   #emitter?: LayerEmitter;
   #alpha: ColorRange = 255;
+  #alphaData!: Uint8Array;
   #visible = true;
   #offset = { x: 0, y: 0 };
   name = 'Unnamed';
@@ -38,6 +39,7 @@ export default class CanvasLayer implements Layer {
     } else if (opts.color) {
       this.#fill(opts.color);
     }
+    this.commitContentChanges();
   }
 
   get canvas(): HTMLCanvasElement {
@@ -71,10 +73,12 @@ export default class CanvasLayer implements Layer {
   #fill(color: Color): void {
     this.#context.fillStyle = color.toString('rgba');
     this.#context.fillRect(0, 0, this.width, this.height);
+    this.commitContentChanges();
   }
 
   drawContents(layer: Layer): void {
     this.#context.drawImage(layer.canvas, 0, 0);
+    this.commitContentChanges();
   }
 
   setData(data: Uint8ClampedArray): void {
@@ -83,7 +87,7 @@ export default class CanvasLayer implements Layer {
       0,
       0
     );
-
+    this.commitContentChanges();
     this.#emitter?.emit('change', this);
   }
 
@@ -96,8 +100,9 @@ export default class CanvasLayer implements Layer {
 
     const imageData = this.#context.getImageData(0, 0, this.width, this.height);
     for (let i = 3; i < imageData.data.length; i += 4) {
-      // TODO calculate opacity preserving initial alpha
-      imageData.data[i] = this.#alpha;
+      imageData.data[i] = toColorRange(
+        this.#alphaData[Math.floor(i / 4)] * value
+      );
     }
     this.#context.putImageData(imageData, 0, 0);
 
@@ -132,7 +137,7 @@ export default class CanvasLayer implements Layer {
 
     this.#canvas.width = value;
     this.#context.putImageData(imageData, 0, 0);
-
+    this.commitContentChanges();
     this.#emitter?.emit('change', this);
   }
 
@@ -151,11 +156,24 @@ export default class CanvasLayer implements Layer {
 
     this.#canvas.height = value;
     this.#context.putImageData(imageData, 0, 0);
-
+    this.commitContentChanges();
     this.#emitter?.emit('change', this);
   }
 
+  /**
+   * This method should be called by external modules when they change the layer
+   */
   emitChange(): void {
     this.#emitter?.emit('change', this);
+  }
+
+  /**
+   * This method must be called when final changes are made to the layer.
+   * I.e.: external command has finished, layer was filled with color, layer was resized, etc.
+   */
+  commitContentChanges() {
+    this.#alphaData = new Uint8Array(
+      this.data.filter((_, index) => (index + 1) % 4 === 0)
+    );
   }
 }
