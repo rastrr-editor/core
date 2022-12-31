@@ -23,16 +23,18 @@ export function createTemporaryLayer(layers: LayerList): {
 }
 
 export function createNewLayer(layers: LayerList): Layer {
-  if (layers.activeLayer == null || layers.activeIndex == null) {
-    throw new TypeError('Active layer is not set');
+  if (layers.length === 0) {
+    throw new TypeError('No layers in the list');
   }
-  const layer = layers.activeLayer;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const layer = layers.get(0)!;
   const newLayer = LayerFactory.setType(layer.type).empty(
     layer.width,
     layer.height
   );
 
   layers.add(newLayer);
+  layers.setActive(layers.length - 1);
 
   return newLayer;
 }
