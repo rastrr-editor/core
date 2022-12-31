@@ -13,7 +13,8 @@ export function createTemporaryLayer(layers: LayerList): {
   const { activeLayer: layer, activeIndex } = layers;
   const tmpLayer = LayerFactory.setType(layer.type).empty(
     layer.width,
-    layer.height
+    layer.height,
+    { opacity: layer.opacity }
   );
   const insertIndex = activeIndex + 1;
   // TODO: layer should be marked as temporary
@@ -51,18 +52,25 @@ export function commitTemporaryData(
   }
 }
 
-export function applyOptionsToCanvasCtx(
-  context: CanvasRenderingContext2D,
-  options: CommandOptions,
-  operation: 'fill' | 'stroke' = 'stroke'
-): void {
+export function applyOptionsToCanvasCtx({
+  context,
+  options,
+  layer,
+  operation = 'stroke',
+}: {
+  context: CanvasRenderingContext2D;
+  options: CommandOptions;
+  layer?: Layer;
+  operation?: 'fill' | 'stroke';
+}): void {
   if (options.color) {
     if (operation === 'stroke') {
       context.strokeStyle = options.color.toString('rgb');
     } else {
       context.fillStyle = options.color.toString('rgb');
     }
-    context.globalAlpha = options.color.a / 256;
+    // TODO: preserve alpha of the path without applied layer opacity
+    context.globalAlpha = (options.color.a / 255) * (layer?.opacity ?? 1);
   }
   if (options.width) {
     context.lineWidth = options.width;

@@ -27,8 +27,8 @@ export default class BrushCommand extends LayerCommand {
 
   async execute(): Promise<boolean> {
     let prevPosition: Rastrr.Point | null = null;
-
-    applyOptionsToCanvasCtx(this.context, this.options);
+    const { options, context, layer } = this;
+    applyOptionsToCanvasCtx({ options, context, layer });
     this.context.globalCompositeOperation = 'copy';
 
     this.context.beginPath();

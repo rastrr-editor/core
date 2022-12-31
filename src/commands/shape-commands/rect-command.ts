@@ -25,8 +25,13 @@ export default class RectCommand extends ShapeCommand {
 
   async execute(): Promise<boolean> {
     let startPosition: Rastrr.Point | null = null;
-
-    applyOptionsToCanvasCtx(this.context, this.options, this.options.operation);
+    const { options, context, layer } = this;
+    applyOptionsToCanvasCtx({
+      options,
+      context,
+      layer,
+      operation: this.options.operation,
+    });
     this.context.globalCompositeOperation = 'copy';
 
     for await (const point of this.iterable) {
