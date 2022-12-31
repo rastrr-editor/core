@@ -1,6 +1,11 @@
 import { Color } from '~/color';
 import { default as CanvasLayer } from './canvas-layer';
-import type { Layer, LayerType, LayerConstructor } from './interface';
+import type {
+  Layer,
+  LayerType,
+  LayerConstructor,
+  LayerOptions,
+} from './interface';
 
 const DEFAULT_BACKGROUND = new Color(255, 255, 255, 255);
 
@@ -21,16 +26,17 @@ export default class LayerFactory {
     };
   }
 
-  static empty(w: number, h: number): Layer {
-    return new this.Class(w, h);
+  static empty(w: number, h: number, opts?: LayerOptions): Layer {
+    return new this.Class(w, h, opts);
   }
 
   static filled(
     w: number,
     h: number,
-    color: Color = DEFAULT_BACKGROUND
+    color: Color = DEFAULT_BACKGROUND,
+    opts: LayerOptions = {}
   ): Layer {
-    return new this.Class(w, h, { color });
+    return new this.Class(w, h, { ...opts, color });
   }
 
   static fromFile(source: ImageBitmapSource): Promise<Layer> {
