@@ -11,7 +11,7 @@ export default class Color {
   toString(to: 'hex' | 'hexa' | 'rgba' | 'rgb'): string {
     switch (to) {
       case 'rgba':
-        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 256})`;
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`;
       case 'rgb':
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
       case 'hex':
