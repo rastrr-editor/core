@@ -33,6 +33,8 @@ export default class LayerList {
       throw new Error('Layer is not defined');
     }
     this.#active = index;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.#emitter.emit('activeChange', index, this.activeLayer!);
   }
 
   add(layer: Layer): this {
