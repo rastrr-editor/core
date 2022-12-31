@@ -51,12 +51,17 @@ export function commitTemporaryData(
   }
 }
 
-export function applyOptions(
+export function applyOptionsToCanvasCtx(
   context: CanvasRenderingContext2D,
-  options: CommandOptions
+  options: CommandOptions,
+  operation: 'fill' | 'stroke' = 'stroke'
 ): void {
   if (options.color) {
-    context.strokeStyle = options.color.toString('rgb');
+    if (operation === 'stroke') {
+      context.strokeStyle = options.color.toString('rgb');
+    } else {
+      context.fillStyle = options.color.toString('rgb');
+    }
     context.globalAlpha = options.color.a / 256;
   }
   if (options.width) {
