@@ -1,3 +1,4 @@
+import { toColorRange } from '~/layer/helpers';
 import type { ColorRange } from './interface';
 
 export default class Color {
@@ -7,6 +8,15 @@ export default class Color {
     public b: ColorRange,
     public a: ColorRange = 255
   ) {}
+
+  setOpacity(value: number): this {
+    this.a = toColorRange(value * 255);
+    return this;
+  }
+
+  clone(): Color {
+    return new Color(this.r, this.g, this.b, this.a);
+  }
 
   toString(to: 'hex' | 'hexa' | 'rgba' | 'rgb'): string {
     switch (to) {

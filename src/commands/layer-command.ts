@@ -1,6 +1,7 @@
 import { Layer } from '~/layer';
+import { Command } from './interface';
 
-export default class LayerCommand {
+export default abstract class LayerCommand implements Command {
   readonly name: string = 'unnamed';
   protected context: CanvasRenderingContext2D;
   protected layer: Layer;
@@ -20,4 +21,6 @@ export default class LayerCommand {
       throw new Error('Incorrect layer param');
     }
   }
+
+  abstract execute(): Promise<boolean>;
 }
