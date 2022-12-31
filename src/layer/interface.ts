@@ -19,6 +19,7 @@ export type LayerOptions = {
   id?: string;
   color?: Color;
   image?: ImageBitmap;
+  opacity?: number;
 };
 
 export interface Layer {

@@ -25,6 +25,7 @@ export default class CanvasLayer implements Layer {
     this.#canvas = document.createElement('canvas');
     this.#canvas.width = width;
     this.#canvas.height = height;
+    this.#alpha = toColorRange((opts.opacity ?? 1) * 255);
 
     const ctx = this.#canvas.getContext('2d');
     if (ctx === null) {
