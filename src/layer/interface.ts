@@ -3,6 +3,7 @@ import { Color } from '~/color';
 
 type LayerEvents = {
   change: (layer: Layer) => void;
+  opacityChange: (layer: Layer, params: { prev: number; next: number }) => void;
 };
 
 export type LayerEmitter = TypedEmitter<LayerEvents>;

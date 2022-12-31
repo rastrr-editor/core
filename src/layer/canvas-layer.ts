@@ -97,12 +97,14 @@ export default class CanvasLayer implements Layer {
   }
 
   setOpacity(value: number): void {
+    const { opacity: prev } = this;
     this.#alpha = toColorRange(value * 255);
-
+    const { opacity: next } = this;
+    this.#emitter?.emit('opacityChange', this, { prev, next });
     const imageData = this.#context.getImageData(0, 0, this.width, this.height);
     for (let i = 3; i < imageData.data.length; i += 4) {
       imageData.data[i] = toColorRange(
-        this.#alphaData[Math.floor(i / 4)] * value
+        this.#alphaData[Math.floor(i / 4)] * next
       );
     }
     this.#context.putImageData(imageData, 0, 0);
