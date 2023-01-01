@@ -1,4 +1,5 @@
 import { Layer } from '~/layer';
+import { getLayerCanvasContext } from './helpers';
 import { Command } from './interface';
 
 export default abstract class LayerCommand implements Command {
@@ -10,16 +11,7 @@ export default abstract class LayerCommand implements Command {
   constructor(layer: Layer, iterable: AsyncIterable<Rastrr.Point>) {
     this.layer = layer;
     this.iterable = iterable;
-
-    if (layer.canvas instanceof HTMLCanvasElement) {
-      const context = layer.canvas.getContext('2d');
-      if (!context) {
-        throw new Error('Failed to get 2D context');
-      }
-      this.context = context;
-    } else {
-      throw new Error('Incorrect layer param');
-    }
+    this.context = getLayerCanvasContext(layer);
   }
 
   abstract execute(): Promise<boolean>;
