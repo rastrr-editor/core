@@ -23,7 +23,13 @@ export function createTemporaryLayer(layers: LayerList): {
   return { layer: tmpLayer, index: insertIndex };
 }
 
-export function createNewLayer(layers: LayerList): Layer {
+export function createNewLayer(
+  layers: LayerList,
+  options?: { tmp: boolean }
+): {
+  layer: Layer;
+  index: number;
+} {
   if (layers.length === 0) {
     throw new TypeError('No layers in the list');
   }
@@ -33,11 +39,11 @@ export function createNewLayer(layers: LayerList): Layer {
     layer.width,
     layer.height
   );
-
+  // TODO: layer should be marked as temporary
   layers.add(newLayer);
   layers.setActive(layers.length - 1);
 
-  return newLayer;
+  return { layer: newLayer, index: layers.length - 1 };
 }
 
 export function commitTemporaryData(
