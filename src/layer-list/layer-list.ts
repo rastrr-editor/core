@@ -1,12 +1,14 @@
 import { Layer } from '~/layer';
-import { LayerListEmitter } from './interface';
+import { LayerListAddOptions, LayerListEmitter } from './interface';
 import EventEmitter from 'eventemitter3';
+import filter from '~/utils/iter/filter';
 
 export default class LayerList {
   #layers: Layer[] = [];
   readonly #emitter: LayerListEmitter;
   #active?: number;
   #layerIds = new Set<string>();
+  #tmpLayers = new WeakSet<Layer>();
 
   constructor() {
     this.#emitter = new EventEmitter() as LayerListEmitter;
@@ -37,11 +39,14 @@ export default class LayerList {
     this.#emitter.emit('activeChange', index, this.activeLayer!);
   }
 
-  add(layer: Layer): this {
+  add(layer: Layer, options?: LayerListAddOptions): this {
     this.assertLayerIsUnique(layer);
     this.#layerIds.add(layer.id);
     layer.setEmitter(this.#emitter);
     this.#layers.push(layer);
+    if (options?.tmp) {
+      this.#tmpLayers.add(layer);
+    }
     this.#emitter?.emit('add', layer);
     return this;
   }
@@ -60,6 +65,7 @@ export default class LayerList {
     } else if (this.#active !== undefined && index < this.#active) {
       this.#active -= 1;
     }
+    this.#tmpLayers.delete(layer);
     this.#emitter?.emit('remove', layer);
 
     return layer;
@@ -68,10 +74,11 @@ export default class LayerList {
   clear(): void {
     this.#layers = [];
     this.#active = undefined;
+    this.#tmpLayers = new WeakSet<Layer>();
     this.#emitter?.emit('clear');
   }
 
-  insert(index: number, layer: Layer): void {
+  insert(index: number, layer: Layer, options?: LayerListAddOptions): void {
     this.assertLayerIsUnique(layer);
     this.#layerIds.add(layer.id);
     layer.setEmitter(this.#emitter);
@@ -79,6 +86,9 @@ export default class LayerList {
       throw new RangeError(`Index (${index}) out of bounds`);
     }
     this.#layers.splice(index, 0, layer);
+    if (options?.tmp) {
+      this.#tmpLayers.add(layer);
+    }
     if (this.#active !== undefined && index <= this.#active) {
       this.#active += 1;
     }
@@ -116,10 +126,28 @@ export default class LayerList {
     return this.#layers[Symbol.iterator]();
   }
 
-  *reverse(): Generator<Layer> {
+  /**
+   * @param withTmp With temporary layers included
+   * @returns Layers
+   */
+  values(withTmp = false): IterableIterator<Layer> {
+    return filter(
+      this.#layers[Symbol.iterator](),
+      (layer) => !this.#tmpLayers.has(layer) || withTmp
+    );
+  }
+
+  /**
+   * @param withTmp With temporary layers included
+   * @returns Layers in reversed order
+   */
+  *reverse(withTmp = false): Generator<Layer> {
     let i = this.#layers.length - 1;
     while (i >= 0) {
-      yield this.#layers[i];
+      const layer = this.#layers[i];
+      if (!this.#tmpLayers.has(layer) || withTmp) {
+        yield layer;
+      }
       i -= 1;
     }
   }

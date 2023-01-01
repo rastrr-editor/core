@@ -168,4 +168,29 @@ describe('LayerList', () => {
       expect(layers.activeIndex).toEqual(3);
     });
   });
+
+  describe('iterators', () => {
+    beforeEach(() => {
+      layers.add(createLayer(), { tmp: true });
+    });
+    test('should return all layers including temporary', () => {
+      const arr = Array.from(layers);
+      expect(arr).toHaveLength(5);
+      expect(arr.map(({ id }) => id)).toEqual(getLayerIds());
+    });
+
+    test('values() should return all layers except temporary', () => {
+      const arr = Array.from(layers.values());
+      expect(arr).toHaveLength(4);
+      expect(arr.map(({ id }) => id)).toEqual(getLayerIds().slice(0, 4));
+    });
+
+    test('reverse() should return all layers except temporary', () => {
+      const arr = Array.from(layers.reverse());
+      expect(arr).toHaveLength(4);
+      expect(arr.map(({ id }) => id)).toEqual(
+        getLayerIds().slice(0, 4).reverse()
+      );
+    });
+  });
 });

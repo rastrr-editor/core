@@ -9,4 +9,8 @@ type LayerListEvents = {
   clear: () => void;
 };
 
+export type LayerListAddOptions = {
+  tmp?: boolean;
+};
+
 export type LayerListEmitter = TypedEmitter<LayerListEvents> & LayerEmitter;
