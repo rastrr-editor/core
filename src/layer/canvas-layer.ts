@@ -1,6 +1,11 @@
 import uniqid from 'uniqid';
 import { Color, ColorRange } from '~/color';
-import type { LayerOptions, Layer, LayerEmitter } from '~/layer/interface';
+import type {
+  LayerOptions,
+  Layer,
+  LayerEmitter,
+  LayerDrawContentsOptions,
+} from '~/layer/interface';
 import { toColorRange, setColor } from './helpers';
 
 export default class CanvasLayer implements Layer {
@@ -77,8 +82,24 @@ export default class CanvasLayer implements Layer {
     this.commitContentChanges();
   }
 
-  drawContents(layer: Layer): void {
-    this.#context.drawImage(layer.canvas, 0, 0);
+  drawContents(layer: Layer, options: LayerDrawContentsOptions = {}): void {
+    const {
+      srcOffset = { x: 0, y: 0 },
+      srcSize,
+      destOffset = { x: 0, y: 0 },
+      destSize,
+    } = options;
+    this.#context.drawImage(
+      layer.canvas,
+      srcOffset.x,
+      srcOffset.y,
+      srcSize?.x ?? layer.width,
+      srcSize?.y ?? layer.height,
+      destOffset.x,
+      destOffset.y,
+      destSize?.x ?? layer.width,
+      destSize?.y ?? layer.height
+    );
     this.commitContentChanges();
   }
 

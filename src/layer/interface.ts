@@ -23,6 +23,13 @@ export type LayerOptions = {
   opacity?: number;
 };
 
+export type LayerDrawContentsOptions = {
+  srcOffset?: Rastrr.Point;
+  srcSize?: Rastrr.Point;
+  destOffset?: Rastrr.Point;
+  destSize?: Rastrr.Point;
+};
+
 export interface Layer {
   name: string;
   locked: boolean;
@@ -36,7 +43,7 @@ export interface Layer {
   readonly data: Uint8ClampedArray;
   readonly canvas: CanvasImageSource;
 
-  drawContents(layer: Layer): void;
+  drawContents(layer: Layer, options?: LayerDrawContentsOptions): void;
   setWidth(value: number): void;
   setHeight(value: number): void;
   setOpacity(value: number): void;
