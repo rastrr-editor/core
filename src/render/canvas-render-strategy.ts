@@ -15,7 +15,7 @@ export default class CanvasRenderStrategy implements RenderStrategy {
     this.#context = ctx;
   }
 
-  render(): Promise<void> {
+  render(viewportOffset: Rastrr.Point = { x: 0, y: 0 }): Promise<void> {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
         this.#clean();
@@ -23,8 +23,8 @@ export default class CanvasRenderStrategy implements RenderStrategy {
           if (layer.visible) {
             this.#context.drawImage(
               layer.canvas,
-              layer.offset.x,
-              layer.offset.y
+              layer.offset.x + viewportOffset.x,
+              layer.offset.y + viewportOffset.y
             );
           }
         }

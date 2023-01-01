@@ -81,7 +81,7 @@ export default class Viewport {
   }
 
   render(): Promise<void> {
-    return this.strategy.render();
+    return this.strategy.render(this.offset);
   }
 
   static #getClassRenderer(
@@ -124,13 +124,7 @@ export default class Viewport {
   }
 
   watch() {
-    this.layers.emitter.on('add', (layer) => {
-      const { offset: viewportOffset } = this;
-      // Correct layer offset
-      layer.setOffset({
-        x: layer.offset.x + viewportOffset.x,
-        y: layer.offset.y + viewportOffset.y,
-      });
+    this.layers.emitter.on('add', () => {
       this.render();
     });
     this.layers.emitter.on('change', () => {

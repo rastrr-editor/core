@@ -7,5 +7,5 @@ export interface RenderStrategyConstructor {
 }
 
 export interface RenderStrategy {
-  render(): Promise<void>;
+  render(viewportOffset: Rastrr.Point): Promise<void>;
 }
