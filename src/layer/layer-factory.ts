@@ -30,6 +30,12 @@ export default class LayerFactory {
     return new this.Class(w, h, opts);
   }
 
+  static cloneEmpty(layer: Layer): Layer {
+    return this.setType(layer.type).empty(layer.width, layer.height, {
+      opacity: layer.opacity,
+    });
+  }
+
   static filled(
     w: number,
     h: number,
