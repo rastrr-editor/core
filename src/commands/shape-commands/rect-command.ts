@@ -1,5 +1,3 @@
-import type { CommandOptions } from '~/commands';
-import { ShapeCommand } from '~/commands';
 import { LayerList } from '~/layer-list';
 import {
   applyOptionsToCanvasCtx,
@@ -8,8 +6,9 @@ import {
 } from '~/commands/helpers';
 import { LayerFactory } from '~/layer';
 import { Color } from '~/color';
+import ShapeCommand, { type ShapeCommandOptions } from '../shape-command';
 
-interface RectOptions extends CommandOptions {
+interface RectOptions extends ShapeCommandOptions {
   operation?: 'fill' | 'stroke';
 }
 
@@ -22,7 +21,7 @@ export default class RectCommand extends ShapeCommand {
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<RectOptions>
   ) {
-    super(layers, iterable);
+    super(layers, iterable, options);
     this.options = applyDefaultOptions(options);
   }
 
@@ -94,6 +93,8 @@ export default class RectCommand extends ShapeCommand {
       opacity: layer.opacity,
     });
     newLayer.setOffset(startPosition);
+    newLayer.name = this.getLayerName();
+    newLayer.locked = true;
     this.layers.add(newLayer);
     this.layers.setActive(this.layers.length - 1);
 
