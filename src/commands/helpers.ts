@@ -58,6 +58,29 @@ export function commitTemporaryData(
   }
 }
 
+export function commitTemporaryDataToNewLayer(
+  layers: LayerList,
+  temporaryIndex: number,
+  options: { size?: Rastrr.Point; offset?: Rastrr.Point } = {}
+): void {
+  const layer = layers.remove(temporaryIndex);
+  const { size, offset: srcOffset } = options;
+  const newLayer = LayerFactory.setType(layer.type).empty(
+    size?.x ?? layer.width,
+    size?.y ?? layer.height,
+    { opacity: layer.opacity }
+  );
+  if (srcOffset) {
+    newLayer.setOffset(srcOffset);
+  }
+  layers.add(newLayer);
+  layers.setActive(layers.length - 1);
+  if (layers.activeLayer != null) {
+    layers.activeLayer.drawContents(layer, { srcOffset, srcSize: size });
+    layers.activeLayer.emitChange();
+  }
+}
+
 export function applyOptionsToCanvasCtx({
   context,
   options,
@@ -94,4 +117,15 @@ export function applyDefaultOptions(options?: CommandOptions): CommandOptions {
     width: options?.width ?? 1,
     lineCap: options?.lineCap ?? 'round',
   };
+}
+
+export function getLayerCanvasContext(layer: Layer): CanvasRenderingContext2D {
+  if (layer.canvas instanceof HTMLCanvasElement) {
+    const context = layer.canvas.getContext('2d');
+    if (context) {
+      return context;
+    }
+    throw new Error('Failed to get 2D context');
+  }
+  throw new Error('Incorrect layer canvas param');
 }
