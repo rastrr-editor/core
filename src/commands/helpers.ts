@@ -17,8 +17,7 @@ export function createTemporaryLayer(layers: LayerList): {
     { opacity: layer.opacity }
   );
   const insertIndex = activeIndex + 1;
-  // TODO: layer should be marked as temporary
-  layers.insert(insertIndex, tmpLayer);
+  layers.insert(insertIndex, tmpLayer, { tmp: true });
 
   return { layer: tmpLayer, index: insertIndex };
 }
@@ -39,8 +38,7 @@ export function createNewLayer(
     layer.width,
     layer.height
   );
-  // TODO: layer should be marked as temporary
-  layers.add(newLayer);
+  layers.add(newLayer, { tmp: options?.tmp });
   layers.setActive(layers.length - 1);
 
   return { layer: newLayer, index: layers.length - 1 };
