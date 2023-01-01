@@ -1,5 +1,6 @@
 import { toColorRange } from '~/layer/helpers';
-import type { ColorRange } from './interface';
+import { normalizeHEX } from './helpers';
+import type { ColorRange, ColorSerialized } from './interface';
 
 export default class Color {
   constructor(
@@ -18,7 +19,37 @@ export default class Color {
     return new Color(this.r, this.g, this.b, this.a);
   }
 
-  toString(to: 'hex' | 'hexa' | 'rgba' | 'rgb'): string {
+  static from(value: string, from: ColorSerialized): Color {
+    switch (from) {
+      case 'rgba':
+      case 'rgb': {
+        const matches = value.match(
+          /rgba?\(((\d+),\s?(\d+),\s?(\d+)(,?\s?(\d\.?\d*))?)\)/
+        );
+        if (!matches) {
+          throw new Error(`Invalid input: ${value}`);
+        }
+        return new Color(
+          toColorRange(parseInt(matches[2], 10)),
+          toColorRange(parseInt(matches[3], 10)),
+          toColorRange(parseInt(matches[4], 10)),
+          toColorRange((matches[6] ? parseFloat(matches[6]) : 1) * 255)
+        );
+      }
+      case 'hex':
+      case 'hexa': {
+        const hex = normalizeHEX(value);
+        return new Color(
+          toColorRange(parseInt(hex.substring(1, 3), 16)),
+          toColorRange(parseInt(hex.substring(3, 5), 16)),
+          toColorRange(parseInt(hex.substring(5, 7), 16)),
+          toColorRange(parseInt(hex.substring(7, 9) || 'ff', 16))
+        );
+      }
+    }
+  }
+
+  toString(to: ColorSerialized): string {
     switch (to) {
       case 'rgba':
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`;
