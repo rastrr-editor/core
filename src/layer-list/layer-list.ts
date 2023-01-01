@@ -6,7 +6,7 @@ import filter from '~/utils/iter/filter';
 export default class LayerList {
   #layers: Layer[] = [];
   readonly #emitter: LayerListEmitter;
-  #active?: number;
+  #active?: Layer;
   #layerIds = new Set<string>();
   #tmpLayers = new WeakSet<Layer>();
 
@@ -23,18 +23,21 @@ export default class LayerList {
   }
 
   get activeIndex(): number | undefined {
-    return this.#active;
+    const index = this.#layers.findIndex(
+      (layer) => layer.id === this.#active?.id
+    );
+    return index >= 0 ? index : undefined;
   }
 
   get activeLayer(): Layer | undefined {
-    return this.#layers[this.#active ?? -1];
+    return this.#active;
   }
 
   setActive(index: number): void {
     if (this.#layers[index] === undefined) {
       throw new Error('Layer is not defined');
     }
-    this.#active = index;
+    this.#active = this.#layers[index];
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.#emitter.emit('activeChange', index, this.activeLayer!);
   }
@@ -60,10 +63,8 @@ export default class LayerList {
       throw new RangeError(`Index (${index}) out of bounds`);
     }
     const [layer] = this.#layers.splice(index, 1);
-    if (index === this.#active) {
+    if (layer.id === this.#active?.id) {
       this.#active = undefined;
-    } else if (this.#active !== undefined && index < this.#active) {
-      this.#active -= 1;
     }
     this.#tmpLayers.delete(layer);
     this.#emitter?.emit('remove', layer);
@@ -89,9 +90,6 @@ export default class LayerList {
     if (options?.tmp) {
       this.#tmpLayers.add(layer);
     }
-    if (this.#active !== undefined && index <= this.#active) {
-      this.#active += 1;
-    }
     this.#emitter?.emit('add', layer);
   }
 
@@ -105,17 +103,6 @@ export default class LayerList {
     const [layer] = this.#layers.splice(index, 1);
     if (layer === undefined) {
       throw new Error(`Layer is not defined at index ${index}`);
-    }
-
-    if (index === this.#active) {
-      this.#active = newIndex;
-    } else if (this.#active !== undefined) {
-      if (index > this.#active && newIndex <= this.#active) {
-        this.#active += 1;
-      }
-      if (index < this.#active && newIndex >= this.#active) {
-        this.#active -= 1;
-      }
     }
 
     this.#layers.splice(newIndex, 0, layer);
