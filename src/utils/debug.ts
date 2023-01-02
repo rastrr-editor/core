@@ -1,5 +1,11 @@
 import baseDebug from 'debug';
 
-const debug = baseDebug('@rastrr-editor/core');
+export function createDebug(namespace = ''): baseDebug.Debugger {
+  return baseDebug(
+    `@rastrr-editor/core${namespace !== '' ? ':' + namespace : ''}`
+  );
+}
+
+const debug = createDebug();
 
 export default debug;
