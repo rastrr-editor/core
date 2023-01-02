@@ -1,5 +1,6 @@
 import type { RenderStrategy } from './interface';
 import { LayerList } from '~/layer-list';
+import { debug } from '~/utils';
 
 export default class CanvasRenderStrategy implements RenderStrategy {
   readonly #layers: LayerList;
@@ -17,7 +18,10 @@ export default class CanvasRenderStrategy implements RenderStrategy {
 
   render(viewportOffset: Rastrr.Point = { x: 0, y: 0 }): Promise<void> {
     return new Promise((resolve) => {
+      debug('request animation frame for render');
       requestAnimationFrame(() => {
+        // FIXME: multiple render calls might be grouped in one animation frame
+        // we should perform only one render
         this.#clean();
         for (const layer of this.#layers) {
           if (layer.visible) {
@@ -28,6 +32,7 @@ export default class CanvasRenderStrategy implements RenderStrategy {
             );
           }
         }
+        debug('render done');
         resolve();
       });
     });
