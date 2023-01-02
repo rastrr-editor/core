@@ -1,3 +1,4 @@
+import { createDebug } from '~/utils';
 import { LayerList } from '~/layer-list';
 import type {
   RenderStrategy,
@@ -5,6 +6,8 @@ import type {
   RenderStrategyConstructor,
 } from '~/render';
 import { CanvasRenderStrategy } from '~/render';
+
+const debug = createDebug('viewport');
 
 type ViewportOptions = {
   /**
@@ -25,12 +28,20 @@ type ViewportOptions = {
   htmlSizeDelta?: Rastrr.Point;
 };
 
+enum RenderMode {
+  IMMEDIATE = 0,
+  BATCH = 1,
+}
+
 export default class Viewport {
   readonly container: HTMLElement;
   readonly layers = new LayerList();
   readonly strategy: RenderStrategy;
   readonly options: Required<ViewportOptions>;
   #canvas: HTMLCanvasElement;
+  #renderQueueSize = 0;
+  #renderMode: RenderMode = RenderMode.IMMEDIATE;
+
   // TODO after implements history
   // history: History;
 
@@ -80,8 +91,29 @@ export default class Viewport {
     return this.render();
   }
 
+  setRenderMode(mode: RenderMode): void {
+    this.#renderMode = mode;
+  }
+
   render(): Promise<void> {
-    return this.strategy.render(this.offset);
+    if (this.#renderMode === RenderMode.IMMEDIATE) {
+      debug('call strategy render');
+      return this.strategy.render(this.offset);
+    }
+    return this.batchRender();
+  }
+
+  protected batchRender(): Promise<void> {
+    this.#renderQueueSize++;
+    debug('delay render, queue size: %d', this.#renderQueueSize);
+    return new Promise(() => {
+      queueMicrotask(() => {
+        if (--this.#renderQueueSize <= 0) {
+          this.#renderQueueSize = 0;
+          return this.render();
+        }
+      });
+    });
   }
 
   static #getClassRenderer(
@@ -124,17 +156,20 @@ export default class Viewport {
   }
 
   watch() {
+    // add, move, remove events should be delayed
+    // because there might be multiple events of this type
+    // in stack frame so it's better to bulk them
     this.layers.emitter.on('add', () => {
-      this.render();
+      this.batchRender();
     });
     this.layers.emitter.on('change', () => {
       this.render();
     });
     this.layers.emitter.on('move', () => {
-      this.render();
+      this.batchRender();
     });
     this.layers.emitter.on('remove', () => {
-      this.render();
+      this.batchRender();
     });
     this.layers.emitter.on('clear', () => {
       this.render();
