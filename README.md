@@ -17,7 +17,8 @@
 
 ### Quick Start
 
-- `npm i`
+1. `npm i`
+2. `npm run serve`
 
 ### NPM Scripts
 
@@ -27,6 +28,11 @@
 - `npm run format` - format code using prettier
 - `npm run format:check` - check formatting errors
 - `npm run lint` - lint code
+
+### Debug
+
+1. Open browser console
+2. Execute code: `localStorage.debug = '@rastrr-editor/core*'`
 
 ### Publish to github npm registry
 
