@@ -2,6 +2,9 @@ import { Layer } from '~/layer';
 import { LayerListAddOptions, LayerListEmitter } from './interface';
 import EventEmitter from 'eventemitter3';
 import filter from '~/utils/iter/filter';
+import { createDebug } from '~/utils/debug';
+
+const debug = createDebug('layer-list');
 
 export default class LayerList {
   #layers: Layer[] = [];
@@ -12,6 +15,27 @@ export default class LayerList {
 
   constructor() {
     this.#emitter = new EventEmitter() as LayerListEmitter;
+    this.#emitter.on('add', (layer) => {
+      debug('layer added, name: %s, id: %s', layer.name, layer.id);
+    });
+    this.#emitter.on('change', (layer) => {
+      debug('layer changed, name: %s, id: %s', layer.name, layer.id);
+    });
+    this.#emitter.on('move', (layer, { from, to }) => {
+      debug(
+        'layer moved, name: %s, id: %s, from: %d, to: %d',
+        layer.name,
+        layer.id,
+        from,
+        to
+      );
+    });
+    this.#emitter.on('remove', (layer) => {
+      debug('layer removed, name: %s, id: %s', layer.name, layer.id);
+    });
+    this.#emitter.on('clear', () => {
+      debug('layers cleared');
+    });
   }
 
   get length() {
