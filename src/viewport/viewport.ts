@@ -107,7 +107,11 @@ export default class Viewport {
     this.#renderQueueSize++;
     debug('delay render, queue size: %d', this.#renderQueueSize);
     return new Promise(() => {
+      // NOTE: all commands are implemented via promises which use microtasks.
+      // Delaying render via queueMicroTask guarantees that render will be performed
+      // after all commands have finished. It is especially useful for history traversal.
       queueMicrotask(() => {
+        // Call render only in last microtask
         if (--this.#renderQueueSize <= 0) {
           this.#renderQueueSize = 0;
           return this.render();
