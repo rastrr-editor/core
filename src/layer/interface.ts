@@ -30,17 +30,22 @@ export type LayerDrawContentsOptions = {
   destSize?: Rastrr.Point;
 };
 
-export interface Layer {
+export interface LayerData {
   name: string;
   locked: boolean;
   readonly id: string;
-  readonly type: LayerType;
   readonly width: number;
   readonly height: number;
   readonly opacity: number;
   readonly visible: boolean;
   readonly offset: Rastrr.Point;
   readonly data: Uint8ClampedArray;
+}
+
+export interface Layer extends LayerData {
+  readonly type: LayerType;
+  // NOTE: canvas might not be used for WebGL implementation
+  // consider to remove this property in future
   readonly canvas: CanvasImageSource;
 
   drawContents(layer: Layer, options?: LayerDrawContentsOptions): void;
