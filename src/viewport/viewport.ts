@@ -159,6 +159,10 @@ export default class Viewport {
     this.layers.clear();
   }
 
+  toBlob(): Promise<Blob | null> {
+    return this.strategy.toBlob(this.options.canvasSize);
+  }
+
   watch() {
     // add, move, remove events should be delayed
     // because there might be multiple events of this type
