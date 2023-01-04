@@ -23,19 +23,41 @@ export default class CanvasRenderStrategy implements RenderStrategy {
         // FIXME: multiple render calls might be grouped in one animation frame
         // we should perform only one render
         this.#clean();
-        for (const layer of this.#layers) {
-          if (layer.visible) {
-            this.#context.drawImage(
-              layer.canvas,
-              layer.offset.x + viewportOffset.x,
-              layer.offset.y + viewportOffset.y
-            );
-          }
-        }
+        this.#renderImage(this.#context, viewportOffset);
         debug('render done');
         resolve();
       });
     });
+  }
+
+  toBlob(imageSize: Rastrr.Point): Promise<Blob | null> {
+    // We need to create new canvas because it must have the size of the resulting image
+    const canvas = document.createElement('canvas');
+    canvas.width = imageSize.x;
+    canvas.height = imageSize.y;
+    const ctx = canvas.getContext('2d');
+    if (ctx === null) {
+      throw new Error('Failed to get 2D context');
+    }
+    this.#renderImage(ctx);
+    return new Promise((resolve) => {
+      canvas.toBlob(resolve);
+    });
+  }
+
+  #renderImage(
+    context: CanvasRenderingContext2D,
+    imageOffset: Rastrr.Point = { x: 0, y: 0 }
+  ) {
+    for (const layer of this.#layers) {
+      if (layer.visible) {
+        context.drawImage(
+          layer.canvas,
+          layer.offset.x + imageOffset.x,
+          layer.offset.y + imageOffset.y
+        );
+      }
+    }
   }
 
   #clean(): void {

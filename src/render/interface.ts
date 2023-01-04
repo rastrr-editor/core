@@ -8,4 +8,5 @@ export interface RenderStrategyConstructor {
 
 export interface RenderStrategy {
   render(viewportOffset: Rastrr.Point): Promise<void>;
+  toBlob(imageSize: Rastrr.Point): Promise<Blob | null>;
 }
