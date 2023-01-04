@@ -41,6 +41,7 @@ export default class Viewport {
   #canvas: HTMLCanvasElement;
   #renderQueueSize = 0;
   #renderMode: RenderMode = RenderMode.IMMEDIATE;
+  #meta: unknown;
 
   // TODO after implements history
   // history: History;
@@ -79,6 +80,14 @@ export default class Viewport {
 
   get height(): number {
     return this.#canvas.height;
+  }
+
+  get meta(): unknown {
+    return this.#meta;
+  }
+
+  setMeta(value: unknown) {
+    this.#meta = value;
   }
 
   setWidth(value: number): Promise<void> {
