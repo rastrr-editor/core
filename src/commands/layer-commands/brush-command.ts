@@ -5,6 +5,7 @@ import {
   commitTemporaryData,
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
+  getLayerCanvasContext,
 } from '~/commands/helpers';
 
 export default class BrushCommand extends LayerCommand {
@@ -44,6 +45,10 @@ export default class BrushCommand extends LayerCommand {
         this.layer.emitChange();
       }
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const activeLayerContext = getLayerCanvasContext(this.#layers.activeLayer!);
+    activeLayerContext.globalCompositeOperation = 'source-over';
 
     commitTemporaryData(this.#layers, this.#insertIndex);
 
