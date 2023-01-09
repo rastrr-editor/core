@@ -15,9 +15,9 @@ type ViewportOptions = {
    */
   strategy: RenderStrategyType;
   /**
-   * Canvas (not HTML) size, i.e. user specified image size
+   * Image size
    */
-  canvasSize?: Rastrr.Point;
+  imageSize?: Rastrr.Point;
   /**
    * Minimal offset between layer and HTML canvas
    */
@@ -50,7 +50,7 @@ export default class Viewport {
     this.container = container;
     this.options = {
       ...options,
-      canvasSize: options.canvasSize ?? { x: 0, y: 0 },
+      imageSize: options.imageSize ?? { x: 0, y: 0 },
       minOffset: options.minOffset ?? { x: 0, y: 0 },
       htmlSizeDelta: options.htmlSizeDelta ?? { x: 0, y: 0 },
     };
@@ -65,11 +65,11 @@ export default class Viewport {
     return {
       x: Math.max(
         this.options.minOffset.x,
-        Math.round(this.width / 2) - Math.round(this.options.canvasSize.x / 2)
+        Math.round(this.width / 2) - Math.round(this.options.imageSize.x / 2)
       ),
       y: Math.max(
         this.options.minOffset.y,
-        Math.round(this.height / 2) - Math.round(this.options.canvasSize.y / 2)
+        Math.round(this.height / 2) - Math.round(this.options.imageSize.y / 2)
       ),
     };
   }
@@ -141,20 +141,20 @@ export default class Viewport {
   }
 
   #createCanvas(): HTMLCanvasElement {
-    const { canvasSize, minOffset, htmlSizeDelta } = this.options;
+    const { imageSize, minOffset, htmlSizeDelta } = this.options;
     const canvasElement = document.createElement('canvas');
     // Get width from container or canvas size
     canvasElement.width =
-      Math.max(canvasSize.x, this.container.clientWidth + htmlSizeDelta.x) +
+      Math.max(imageSize.x, this.container.clientWidth + htmlSizeDelta.x) +
       // if container width is less than canvas width - add min offset
-      (this.container.clientWidth - canvasSize.x <= minOffset.x * 2
+      (this.container.clientWidth - imageSize.x <= minOffset.x * 2
         ? minOffset.x * 2
         : 0);
     // Get height from container or canvas size
     canvasElement.height =
-      Math.max(canvasSize.y, this.container.clientHeight + htmlSizeDelta.y) +
+      Math.max(imageSize.y, this.container.clientHeight + htmlSizeDelta.y) +
       // if container height is less than canvas height - add min offset
-      (this.container.clientHeight - canvasSize.y <= minOffset.y * 2
+      (this.container.clientHeight - imageSize.y <= minOffset.y * 2
         ? minOffset.y * 2
         : 0);
 
@@ -169,7 +169,7 @@ export default class Viewport {
   }
 
   toBlob(): Promise<Blob | null> {
-    return this.strategy.toBlob(this.options.canvasSize);
+    return this.strategy.toBlob(this.options.imageSize);
   }
 
   watch() {
