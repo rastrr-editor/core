@@ -1,4 +1,4 @@
-import type { RenderStrategy } from './interface';
+import type { BlobOptions, RenderStrategy } from './interface';
 import { LayerList } from '~/layer-list';
 import { debug } from '~/utils';
 
@@ -30,18 +30,18 @@ export default class CanvasRenderStrategy implements RenderStrategy {
     });
   }
 
-  toBlob(imageSize: Rastrr.Point): Promise<Blob | null> {
+  toBlob(options: BlobOptions): Promise<Blob | null> {
     // We need to create new canvas because it must have the size of the resulting image
     const canvas = document.createElement('canvas');
-    canvas.width = imageSize.x;
-    canvas.height = imageSize.y;
+    canvas.width = options.imageSize.x;
+    canvas.height = options.imageSize.y;
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
       throw new Error('Failed to get 2D context');
     }
     this.#renderImage(ctx);
     return new Promise((resolve) => {
-      canvas.toBlob(resolve);
+      canvas.toBlob(resolve, options.mimeType, options.quality);
     });
   }
 

@@ -168,8 +168,12 @@ export default class Viewport {
     this.layers.clear();
   }
 
-  toBlob(): Promise<Blob | null> {
-    return this.strategy.toBlob(this.options.imageSize);
+  toBlob(mimeType = 'image/png', quality?: number): Promise<Blob | null> {
+    return this.strategy.toBlob({
+      imageSize: this.options.imageSize,
+      mimeType,
+      quality,
+    });
   }
 
   watch() {
