@@ -197,8 +197,13 @@ export default class CanvasLayer implements Layer {
    * I.e.: external command has finished, layer was filled with color, layer was resized, etc.
    */
   commitContentChanges() {
-    this.#alphaData = new Uint8Array(
-      this.data.filter((_, index) => (index + 1) % 4 === 0)
-    );
+    // FIXME: this method is synchronous and on large canvas sizes it will block the main thread.
+    // Proposed solution: use green threads and add boolean prop "ready" to layer.
+    // Changes to layer will be allowed only if it's "ready"
+    const { data } = this;
+    this.#alphaData = new Uint8Array(Math.floor(data.length / 4));
+    for (let i = 3; i < data.length; i += 4) {
+      this.#alphaData[Math.floor(i / 4)] = data[i];
+    }
   }
 }
