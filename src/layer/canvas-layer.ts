@@ -103,6 +103,16 @@ export default class CanvasLayer implements Layer {
       destSize?.y ?? layer.height
     );
     this.commitContentChanges();
+    this.#emitter?.emit('change', this);
+  }
+
+  drawImageData(
+    imageData: ImageData,
+    offset: Rastrr.Point = { x: 0, y: 0 }
+  ): void {
+    this.#context.putImageData(imageData, offset.x, offset.y);
+    this.commitContentChanges();
+    this.#emitter?.emit('change', this);
   }
 
   setData(data: Uint8ClampedArray): void {

@@ -18,6 +18,7 @@ const createLayer = (id = uniqid()): Layer => ({
   canvas: null,
 
   drawContents(): void {},
+  drawImageData(): void {},
   setWidth(): void {},
   setHeight(): void {},
   setOpacity(): void {},
