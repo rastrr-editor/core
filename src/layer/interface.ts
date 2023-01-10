@@ -28,6 +28,7 @@ export type LayerDrawContentsOptions = {
   srcSize?: Rastrr.Point;
   destOffset?: Rastrr.Point;
   destSize?: Rastrr.Point;
+  globalCompositeOperation?: GlobalCompositeOperation;
 };
 
 export interface LayerData {
