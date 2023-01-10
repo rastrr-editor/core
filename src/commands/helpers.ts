@@ -1,6 +1,6 @@
 import { LayerList } from '~/layer-list';
-import { Layer, LayerFactory } from '~/layer';
-import { CommandOptions } from './interface';
+import { type Layer, LayerFactory } from '~/layer';
+import { type CommandOptions } from './interface';
 import { Color } from '~/color';
 
 export function createTemporaryLayer(layers: LayerList): {
@@ -46,14 +46,21 @@ export function createNewLayer(
 
 export function commitTemporaryData(
   layers: LayerList,
-  temporaryIndex: number
-): void {
+  temporaryIndex: number,
+  callbacks?: {
+    beforeCommit?: (tmpLayer: Layer, activeLayer: Layer) => void;
+    afterCommit?: (tmpLayer: Layer, activeLayer: Layer) => void;
+  }
+): boolean {
   const layer = layers.remove(temporaryIndex);
 
   if (layers.activeLayer != null && layers.activeIndex === temporaryIndex - 1) {
+    callbacks?.beforeCommit?.(layer, layers.activeLayer);
     layers.activeLayer.drawContents(layer);
-    layers.activeLayer.emitChange();
+    callbacks?.afterCommit?.(layer, layers.activeLayer);
+    return true;
   }
+  return false;
 }
 
 export function commitTemporaryDataToNewLayer(
@@ -75,7 +82,6 @@ export function commitTemporaryDataToNewLayer(
   layers.setActive(layers.length - 1);
   if (layers.activeLayer != null) {
     layers.activeLayer.drawContents(layer, { srcOffset, srcSize: size });
-    layers.activeLayer.emitChange();
   }
 }
 
