@@ -164,3 +164,17 @@ export function extractImageDataForArea(
 ): ImageData {
   return context.getImageData(start.x, start.y, end.x, end.y);
 }
+
+export function normalizeAreaCoords(start: Rastrr.Point, end: Rastrr.Point) {
+  const normalizedStart = { ...start };
+  const normalizedEnd = { ...end };
+  if (end.y < 0) {
+    normalizedEnd.y = Math.abs(end.y);
+    normalizedStart.y -= normalizedEnd.y;
+  }
+  if (end.x < 0) {
+    normalizedEnd.x = Math.abs(end.x);
+    normalizedStart.x -= normalizedEnd.x;
+  }
+  return { start: normalizedStart, end: normalizedEnd };
+}

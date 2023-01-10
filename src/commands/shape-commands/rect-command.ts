@@ -3,6 +3,7 @@ import {
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
   getLayerCanvasContext,
+  normalizeAreaCoords,
 } from '~/commands/helpers';
 import { LayerFactory } from '~/layer';
 import { Color } from '~/color';
@@ -72,16 +73,8 @@ export default class RectCommand extends ShapeCommand {
 
     if (startPosition != null && width !== 0 && height !== 0) {
       // Normalize width and height
-      if (height < 0) {
-        height = Math.abs(height);
-        startPosition.y -= height;
-      }
-      if (width < 0) {
-        width = Math.abs(width);
-        startPosition.x -= width;
-      }
-      const size = { x: width, y: height };
-      this.finalDraw(startPosition, size);
+      const area = normalizeAreaCoords(startPosition, { x: width, y: height });
+      this.finalDraw(area.start, area.end);
     } else {
       this.layers.remove(this.insertIndex);
     }
