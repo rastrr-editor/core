@@ -11,6 +11,7 @@ export type LayerBackupData = {
   };
 };
 
+// TODO: implement write lock for the layer to prevent race conditions
 export default abstract class LayerCommand implements Command {
   readonly name: string = 'unnamed';
   protected context: CanvasRenderingContext2D;

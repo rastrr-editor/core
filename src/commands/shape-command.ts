@@ -7,6 +7,7 @@ export interface ShapeCommandOptions extends CommandOptions {
   getLayerName?: (baseName: string) => string;
 }
 
+// TODO: shape command shouldn't extend layer command
 export default abstract class ShapeCommand extends LayerCommand {
   readonly options: ShapeCommandOptions;
   protected layers: LayerList;
