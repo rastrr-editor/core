@@ -78,8 +78,13 @@ export default class LayerList {
     return this;
   }
 
-  get(index: number): Layer | undefined {
-    return this.#layers[index];
+  get(id: string): Layer | undefined;
+  get(index: number): Layer | undefined;
+  get(indexOrId: number | string): Layer | undefined {
+    if (typeof indexOrId === 'string') {
+      return this.#layers.find(({ id }) => id === indexOrId);
+    }
+    return this.#layers[indexOrId];
   }
 
   remove(index: number): Layer {
