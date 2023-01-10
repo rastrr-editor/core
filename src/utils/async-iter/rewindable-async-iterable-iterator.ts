@@ -2,13 +2,12 @@ export default class RewindableAsyncIterableIterator<T>
   implements AsyncIterableIterator<T>
 {
   #iterator: AsyncIterator<T>;
-  #buffer: T[];
+  #buffer: T[] = [];
   #hasEnded = false;
   #index = 0;
 
   constructor(iterable: AsyncIterable<T>) {
     this.#iterator = iterable[Symbol.asyncIterator]();
-    this.#buffer = [];
   }
 
   [Symbol.asyncIterator]() {
@@ -17,6 +16,10 @@ export default class RewindableAsyncIterableIterator<T>
 
   rewind() {
     this.#index = 0;
+  }
+
+  getBuffer(): T[] {
+    return [...this.#buffer];
   }
 
   async next(): Promise<IteratorResult<T>> {
