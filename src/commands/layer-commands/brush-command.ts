@@ -1,8 +1,7 @@
 import { CommandOptions, LayerCommand } from '~/commands';
-import type { Layer } from '~/layer';
+import { Layer, LayerFactory } from '~/layer';
 import type { LayerList } from '~/layer-list';
 import {
-  createTemporaryLayer,
   commitTemporaryData,
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
@@ -16,35 +15,50 @@ export default class BrushCommand extends LayerCommand {
   readonly options: CommandOptions;
   readonly name = 'Кисть';
   #layers: LayerList;
-  #insertIndex: number;
 
   constructor(
     layers: LayerList,
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<CommandOptions>
   ) {
-    const { layer, index } = createTemporaryLayer(layers);
-    super(layer, iterable);
-    this.#insertIndex = index;
+    // TODO: refactor
+    if (layers.activeLayer == null) {
+      throw new TypeError('Active layer is not set');
+    }
+    super(layers.activeLayer, iterable);
     this.#layers = layers;
     this.options = applyDefaultOptions(options);
   }
 
   async execute(): Promise<boolean> {
     this.iterable.rewind();
-    const { options, context, layer, iterable } = this;
-    applyOptionsToCanvasCtx({ options, context, layer });
-    this.context.globalCompositeOperation = 'copy';
+    const { options, layer, iterable } = this;
+    // FIXME: Move to createTemporaryLayer
+    const index = this.#layers.indexOf(layer);
+    if (index === -1) {
+      return false;
+    }
+    const tmpLayer = LayerFactory.setType(layer.type).empty(
+      layer.width,
+      layer.height,
+      { opacity: layer.opacity }
+    );
+    const insertIndex = index + 1;
+    this.#layers.insert(insertIndex, tmpLayer, { tmp: true });
+    const context = getLayerCanvasContext(tmpLayer);
 
-    await drawLine(context, layer, iterable);
+    applyOptionsToCanvasCtx({ options, context, layer: tmpLayer });
+    context.globalCompositeOperation = 'copy';
+
+    await drawLine(context, tmpLayer, iterable);
 
     // TODO: refactor
-    const beforeCommit = (tmpLayer: Layer, activeLayer: Layer) => {
+    const beforeCommit = (_: Layer, activeLayer: Layer) => {
       if (this.backup == null) {
         const area = getAreaFromPoints(
           iterable.getBuffer(),
           { x: 0, y: 0 },
-          { x: this.layer.width, y: this.layer.height }
+          { x: activeLayer.width, y: activeLayer.height }
         );
         const modifier = Math.ceil((this.options.width ?? 1) / 1.5);
         // FIXME: check if area intersects with layer area
@@ -55,8 +69,8 @@ export default class BrushCommand extends LayerCommand {
             y: Math.max(area.start.y - modifier, 0),
           };
           area.end = {
-            x: Math.min(area.end.x + modifier, this.layer.width),
-            y: Math.min(area.end.y + modifier, this.layer.height),
+            x: Math.min(area.end.x + modifier, activeLayer.width),
+            y: Math.min(area.end.y + modifier, activeLayer.height),
           };
         }
         // Backup only the modified area of the canvas
@@ -74,7 +88,8 @@ export default class BrushCommand extends LayerCommand {
         }
       }
     };
-    return commitTemporaryData(this.#layers, this.#insertIndex, {
+    // TODO: refactor
+    return commitTemporaryData(this.#layers, insertIndex, {
       beforeCommit,
     });
   }
