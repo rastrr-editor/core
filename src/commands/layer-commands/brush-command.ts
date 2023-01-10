@@ -30,6 +30,7 @@ export default class BrushCommand extends LayerCommand {
   }
 
   async execute(): Promise<boolean> {
+    this.iterable.rewind();
     const { options, context, layer, iterable } = this;
     applyOptionsToCanvasCtx({ options, context, layer });
     this.context.globalCompositeOperation = 'copy';

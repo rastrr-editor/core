@@ -26,6 +26,7 @@ export default class RectCommand extends ShapeCommand {
   }
 
   async execute(): Promise<boolean> {
+    this.iterable.rewind();
     let startPosition: Rastrr.Point | null = null;
     const { options, context, layer } = this;
     // TODO: refactor

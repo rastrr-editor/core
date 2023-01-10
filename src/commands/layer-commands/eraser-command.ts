@@ -21,6 +21,7 @@ export default class EraserCommand extends LayerCommand {
   }
 
   async execute(): Promise<boolean> {
+    this.iterable.rewind();
     const { options, context, layer, iterable } = this;
     applyOptionsToCanvasCtx({ options, context, layer });
     this.context.globalCompositeOperation = 'destination-out';
