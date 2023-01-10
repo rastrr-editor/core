@@ -15,4 +15,6 @@ export default abstract class LayerCommand implements Command {
   }
 
   abstract execute(): Promise<boolean>;
+
+  abstract undo(): Promise<boolean>;
 }

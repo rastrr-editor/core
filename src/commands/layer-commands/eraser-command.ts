@@ -29,4 +29,8 @@ export default class EraserCommand extends LayerCommand {
 
     return true;
   }
+
+  async undo() {
+    return false;
+  }
 }

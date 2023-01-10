@@ -28,6 +28,7 @@ export default class RectCommand extends ShapeCommand {
   async execute(): Promise<boolean> {
     let startPosition: Rastrr.Point | null = null;
     const { options, context, layer } = this;
+    // TODO: refactor
     applyOptionsToCanvasCtx({
       // There we use same color as for brush cursor
       options: { ...options, color: Color.from('#c1c1c1', 'hex') },
@@ -84,6 +85,10 @@ export default class RectCommand extends ShapeCommand {
       this.layers.remove(this.insertIndex);
     }
     return true;
+  }
+
+  async undo() {
+    return false;
   }
 
   protected finalDraw(startPosition: Rastrr.Point, size: Rastrr.Point) {

@@ -36,4 +36,8 @@ export default class BrushCommand extends LayerCommand {
 
     return true;
   }
+
+  async undo(): Promise<boolean> {
+    return false;
+  }
 }
