@@ -7,4 +7,5 @@ export { default as every } from './every';
 export { default as until } from './until';
 export { default as repeat } from './repeat';
 export { default as toAsyncIter } from './to-async-iter';
+export { default as RewindableAsyncIterableIterator } from './rewindable-async-iterable-iterator';
 export * from './types';
