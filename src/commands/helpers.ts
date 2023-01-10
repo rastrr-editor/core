@@ -127,3 +127,26 @@ export function getLayerCanvasContext(layer: Layer): CanvasRenderingContext2D {
   }
   throw new Error('Incorrect layer canvas param');
 }
+
+export async function drawLine(
+  context: CanvasRenderingContext2D,
+  layer: Layer,
+  iterable: AsyncIterable<Rastrr.Point>
+): Promise<void> {
+  let prevPosition: Rastrr.Point | null = null;
+
+  context.beginPath();
+
+  for await (const point of iterable) {
+    if (!prevPosition) {
+      context.moveTo(point.x, point.y);
+    }
+    // Deduplicate repeating points
+    if (prevPosition?.x !== point.x || prevPosition?.y !== point.y) {
+      context.lineTo(point.x, point.y);
+      context.stroke();
+      prevPosition = point;
+      layer.emitChange();
+    }
+  }
+}

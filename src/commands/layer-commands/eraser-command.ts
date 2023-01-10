@@ -3,6 +3,7 @@ import { LayerList } from '~/layer-list';
 import {
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
+  drawLine,
 } from '~/commands/helpers';
 
 export default class EraserCommand extends LayerCommand {
@@ -20,24 +21,11 @@ export default class EraserCommand extends LayerCommand {
   }
 
   async execute(): Promise<boolean> {
-    let prevPosition: Rastrr.Point | null = null;
-    const { options, context, layer } = this;
+    const { options, context, layer, iterable } = this;
     applyOptionsToCanvasCtx({ options, context, layer });
     this.context.globalCompositeOperation = 'destination-out';
 
-    this.context.beginPath();
-    for await (const point of this.iterable) {
-      if (!prevPosition) {
-        this.context.moveTo(point.x, point.y);
-      }
-      // Deduplicate repeating points
-      if (prevPosition?.x !== point.x || prevPosition?.y !== point.y) {
-        this.context.lineTo(point.x, point.y);
-        this.context.stroke();
-        prevPosition = point;
-        this.layer.emitChange();
-      }
-    }
+    await drawLine(context, layer, iterable);
 
     return true;
   }
