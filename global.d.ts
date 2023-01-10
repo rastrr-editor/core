@@ -15,4 +15,9 @@ declare namespace Rastrr {
     x: number;
     y: number;
   };
+
+  type Area = {
+    start: Point;
+    end: Point;
+  };
 }
