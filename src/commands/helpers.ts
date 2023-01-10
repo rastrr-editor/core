@@ -156,3 +156,11 @@ export async function drawLine(
     }
   }
 }
+
+export function extractImageDataForArea(
+  context: CanvasRenderingContext2D,
+  start: Rastrr.Point,
+  end: Rastrr.Point
+): ImageData {
+  return context.getImageData(start.x, start.y, end.x, end.y);
+}
