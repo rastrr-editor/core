@@ -161,7 +161,11 @@ export function extractImageDataForArea(
   context: CanvasRenderingContext2D,
   start: Rastrr.Point,
   end: Rastrr.Point
-): ImageData {
+): ImageData | null {
+  // Nothing to extract
+  if (start.x - end.x == 0 || start.y - end.y == 0) {
+    return null;
+  }
   return context.getImageData(start.x, start.y, end.x, end.y);
 }
 
