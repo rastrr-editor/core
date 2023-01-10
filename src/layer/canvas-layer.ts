@@ -88,7 +88,9 @@ export default class CanvasLayer implements Layer {
       srcSize,
       destOffset = { x: 0, y: 0 },
       destSize,
+      globalCompositeOperation = 'source-over',
     } = options;
+    this.#context.globalCompositeOperation = globalCompositeOperation;
     this.#context.drawImage(
       layer.canvas,
       srcOffset.x,
