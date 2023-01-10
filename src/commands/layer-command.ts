@@ -15,9 +15,22 @@ export type LayerBackupData = {
 // TODO: implement write lock for the layer to prevent race conditions
 export default abstract class LayerCommand implements Command {
   readonly name: string = 'unnamed';
+  // TODO: delete
   protected context: CanvasRenderingContext2D;
+
+  /**
+   * Working layer, usually the active layer
+   */
   protected layer: Layer;
+
+  /**
+   * Iterable of the drawing trajectory
+   */
   protected iterable: RewindableAsyncIterableIterator<Rastrr.Point>;
+
+  /**
+   * Backup data of the modified area in the layer
+   */
   protected backup?: LayerBackupData;
 
   constructor(layer: Layer, iterable: AsyncIterable<Rastrr.Point>) {
