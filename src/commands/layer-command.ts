@@ -9,7 +9,7 @@ import { Command } from './interface';
 export const debug = createDebug('commands');
 
 // TODO: Consider creating debug helpers for different entities
-const debugRectangle = (
+export const debugRectangle = (
   prefix: string,
   rect: Rectangle,
   ...args: unknown[]
@@ -69,11 +69,35 @@ export default abstract class LayerCommand implements Command {
 
   abstract undo(): Promise<boolean>;
 
-  protected createBackup(areaModifier = 0): void {
-    // Prevent backup override
-    if (this.backup != null) {
-      return;
+  // TODO: refactor
+  protected copyContext(
+    context: CanvasRenderingContext2D
+  ): CanvasRenderingContext2D | null {
+    const rect = new Rectangle(
+      { x: 0, y: 0 },
+      this.layer.width,
+      this.layer.height
+    );
+    const area = rect.toArea();
+    const imageData = extractImageDataForArea(context, area.start, area.end);
+    if (imageData) {
+      const canvas = document.createElement('canvas');
+      canvas.width = this.layer.width;
+      canvas.height = this.layer.height;
+      const copyContext = canvas.getContext('2d');
+      copyContext?.putImageData(imageData, 0, 0);
+      return copyContext;
     }
+    return null;
+  }
+
+  /**
+   * Get intersection with the layer affected by the command.
+   * It can be called only after iterable has ended.
+   * @param areaModifier
+   * @returns
+   */
+  protected getIntersection(areaModifier = 0): Rectangle | null {
     // Interaction area is relative to the layer coordinate system
     const interactionArea = getAreaFromPoints(this.iterable.getBuffer());
     const resizedArea: Rastrr.Area = {
@@ -99,7 +123,15 @@ export default abstract class LayerCommand implements Command {
       this.layer.id
     );
     debugRectangle('modified area, ', areaRect);
-    const intersection = areaRect.intersection(layerRect);
+    return areaRect.intersection(layerRect);
+  }
+
+  protected createBackup(areaModifier = 0): void {
+    // Prevent backup override
+    if (this.backup != null) {
+      return;
+    }
+    const intersection = this.getIntersection(areaModifier);
     if (intersection != null) {
       const area = intersection.toArea();
       const imageData = extractImageDataForArea(
