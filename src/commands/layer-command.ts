@@ -1,7 +1,7 @@
 import { Rectangle } from '~/geometry';
 import { Layer } from '~/layer';
 import { getAreaFromPoints } from '~/utils/aggregate';
-import { RewindableAsyncIterableIterator } from '~/utils/async-iter';
+import { RewindableAsyncIterableIterator, map } from '~/utils/async-iter';
 import { createDebug } from '~/utils/debug';
 import { extractImageDataForArea, getLayerCanvasContext } from './helpers';
 import { Command } from './interface';
@@ -39,7 +39,13 @@ export default abstract class LayerCommand implements Command {
 
   constructor(layer: Layer, iterable: AsyncIterable<Rastrr.Point>) {
     this.layer = layer;
-    this.iterable = new RewindableAsyncIterableIterator(iterable);
+    this.iterable = new RewindableAsyncIterableIterator(
+      // Map points to layer coordinates
+      map(iterable, (point) => ({
+        x: point.x - layer.offset.x,
+        y: point.y - layer.offset.y,
+      }))
+    );
     this.context = getLayerCanvasContext(layer);
   }
 
