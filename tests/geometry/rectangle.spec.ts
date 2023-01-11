@@ -68,5 +68,28 @@ describe('rectangle', () => {
       expect(area4.start).toEqual({ x: 1, y: 1 });
       expect(area4.end).toEqual({ x: 2, y: 2 });
     });
+
+    test('should return correct intersection for both ways', () => {
+      const rect1 = new Rectangle({
+        start: { x: -31, y: 11 },
+        end: { x: 537, y: 33 },
+      });
+      const rect2 = new Rectangle({
+        start: { x: 0, y: 0 },
+        end: { x: 500, y: 500 },
+      });
+
+      const intersection1 = rect1.intersection(rect2);
+      expect(intersection1).toBeInstanceOf(Rectangle);
+      const area1 = intersection1!.toArea();
+      expect(area1.start).toEqual({ x: 0, y: 11 });
+      expect(area1.end).toEqual({ x: 500, y: 33 });
+
+      const intersection2 = rect2.intersection(rect1);
+      expect(intersection2).toBeInstanceOf(Rectangle);
+      const area2 = intersection2!.toArea();
+      expect(area2.start).toEqual({ x: 0, y: 11 });
+      expect(area2.end).toEqual({ x: 500, y: 33 });
+    });
   });
 });

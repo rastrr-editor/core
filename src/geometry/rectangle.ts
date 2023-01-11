@@ -54,14 +54,17 @@ export default class Rectangle {
     }
     const srcArea = this.toArea();
     const destArea = rect.toArea();
-    const start =
-      srcArea.start.x < destArea.start.x && srcArea.start.y < destArea.start.y
-        ? destArea.start
-        : srcArea.start;
-    const end =
-      srcArea.end.x < destArea.end.x && srcArea.end.y < destArea.end.y
-        ? srcArea.end
-        : destArea.end;
+    const start = {
+      x:
+        srcArea.start.x < destArea.start.x ? destArea.start.x : srcArea.start.x,
+      y:
+        srcArea.start.y < destArea.start.y ? destArea.start.y : srcArea.start.y,
+    };
+
+    const end = {
+      x: srcArea.end.x < destArea.end.x ? srcArea.end.x : destArea.end.x,
+      y: srcArea.end.y < destArea.end.y ? srcArea.end.y : destArea.end.y,
+    };
     return new Rectangle({ start, end });
   }
 }
