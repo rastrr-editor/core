@@ -3,20 +3,21 @@ import { type Layer, LayerFactory } from '~/layer';
 import { type CommandOptions } from './interface';
 import { Color } from '~/color';
 
-export function createTemporaryLayer(layers: LayerList): {
-  layer: Layer;
-  index: number;
-} {
-  if (layers.activeLayer == null || layers.activeIndex == null) {
-    throw new TypeError('Active layer is not set');
+export function createTemporaryLayer(
+  layers: LayerList,
+  srcLayer: Layer
+): { layer: Layer; index: number } | null {
+  const srcIndex = layers.indexOf(srcLayer);
+  if (srcIndex === -1) {
+    return null;
   }
-  const { activeLayer: layer, activeIndex } = layers;
-  const tmpLayer = LayerFactory.setType(layer.type).empty(
-    layer.width,
-    layer.height,
-    { opacity: layer.opacity }
+  const tmpLayer = LayerFactory.setType(srcLayer.type).empty(
+    srcLayer.width,
+    srcLayer.height,
+    { opacity: srcLayer.opacity }
   );
-  const insertIndex = activeIndex + 1;
+  tmpLayer.setOffset(srcLayer.offset);
+  const insertIndex = srcIndex + 1;
   layers.insert(insertIndex, tmpLayer, { tmp: true });
 
   return { layer: tmpLayer, index: insertIndex };
@@ -47,17 +48,17 @@ export function createNewLayer(
 export function commitTemporaryData(
   layers: LayerList,
   temporaryIndex: number,
+  destLayer: Layer,
   callbacks?: {
-    beforeCommit?: (tmpLayer: Layer, activeLayer: Layer) => void;
-    afterCommit?: (tmpLayer: Layer, activeLayer: Layer) => void;
+    beforeCommit?: (tmpLayer: Layer, destLayer: Layer) => void;
+    afterCommit?: (tmpLayer: Layer, destLayer: Layer) => void;
   }
 ): boolean {
   const layer = layers.remove(temporaryIndex);
-
-  if (layers.activeLayer != null && layers.activeIndex === temporaryIndex - 1) {
-    callbacks?.beforeCommit?.(layer, layers.activeLayer);
-    layers.activeLayer.drawContents(layer);
-    callbacks?.afterCommit?.(layer, layers.activeLayer);
+  if (layers.has(destLayer)) {
+    callbacks?.beforeCommit?.(layer, destLayer);
+    destLayer.drawContents(layer);
+    callbacks?.afterCommit?.(layer, destLayer);
     return true;
   }
   return false;
