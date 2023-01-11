@@ -167,7 +167,12 @@ export function extractImageDataForArea(
   if (start.x - end.x == 0 || start.y - end.y == 0) {
     return null;
   }
-  return context.getImageData(start.x, start.y, end.x, end.y);
+  return context.getImageData(
+    start.x,
+    start.y,
+    end.x - start.x,
+    end.y - start.y
+  );
 }
 
 export function normalizeAreaCoords(start: Rastrr.Point, end: Rastrr.Point) {
