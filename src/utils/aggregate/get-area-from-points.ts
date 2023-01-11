@@ -1,7 +1,5 @@
 export default function getAreaFromPoints(
-  points: Iterable<Rastrr.Point>,
-  startLimit?: Rastrr.Point,
-  endLimit?: Rastrr.Point
+  points: Iterable<Rastrr.Point>
 ): Rastrr.Area {
   let minY = Number.POSITIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
@@ -22,18 +20,5 @@ export default function getAreaFromPoints(
       minX = point.x;
     }
   }
-  // FIXME: it doesn't work as expected
-  let start = startLimit
-    ? { x: Math.max(minX, startLimit.x), y: Math.max(minY, startLimit.y) }
-    : { x: minX, y: minY };
-  let end = endLimit
-    ? { x: Math.min(maxX, endLimit.x), y: Math.min(maxY, endLimit.y) }
-    : { x: maxX, y: maxY };
-  if (start.x > end.x || start.y > end.y) {
-    start = end;
-  }
-  if (end.x < start.x || end.y < start.y) {
-    end = start;
-  }
-  return { start, end };
+  return { start: { x: minX, y: minY }, end: { x: maxX, y: maxY } };
 }
