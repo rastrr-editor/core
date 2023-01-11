@@ -8,6 +8,22 @@ import { Command } from './interface';
 
 export const debug = createDebug('commands');
 
+// TODO: Consider creating debug helpers for different entities
+const debugRectangle = (
+  prefix: string,
+  rect: Rectangle,
+  ...args: unknown[]
+): void => {
+  debug(
+    `${prefix}corner: (%d, %d), size: %d x %d`,
+    ...args,
+    rect.corner.x,
+    rect.corner.y,
+    rect.width,
+    rect.height
+  );
+};
+
 export type LayerBackupData = {
   imageData: ImageData;
   area: {
@@ -58,6 +74,7 @@ export default abstract class LayerCommand implements Command {
     if (this.backup != null) {
       return;
     }
+    // Interaction area is relative to the layer coordinate system
     const interactionArea = getAreaFromPoints(this.iterable.getBuffer());
     const resizedArea: Rastrr.Area = {
       start: {
@@ -71,10 +88,17 @@ export default abstract class LayerCommand implements Command {
     };
     const areaRect = new Rectangle(resizedArea);
     const layerRect = new Rectangle(
-      this.layer.offset,
+      { x: 0, y: 0 },
       this.layer.width,
       this.layer.height
     );
+    debugRectangle(
+      'layer area, name: %s, id: %s, ',
+      layerRect,
+      this.layer.name,
+      this.layer.id
+    );
+    debugRectangle('modified area, ', areaRect);
     const intersection = areaRect.intersection(layerRect);
     if (intersection != null) {
       const area = intersection.toArea();
@@ -84,14 +108,11 @@ export default abstract class LayerCommand implements Command {
         area.end
       );
       if (imageData != null) {
-        debug(
-          'backup layer, name: %s, id: %s, area corner: (%d, %d), area size: %d x %d',
+        debugRectangle(
+          'backup layer, name: %s, id: %s, ',
+          intersection,
           this.layer.name,
-          this.layer.id,
-          intersection.corner.x,
-          intersection.corner.y,
-          intersection.width,
-          intersection.height
+          this.layer.id
         );
         this.backup = {
           imageData,
