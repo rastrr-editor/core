@@ -91,6 +91,10 @@ export default class LayerList {
     return this.#layers.indexOf(layer);
   }
 
+  has(layer: Layer): boolean {
+    return this.indexOf(layer) !== -1;
+  }
+
   remove(index: number): Layer {
     if (index < 0 || index >= this.length) {
       throw new RangeError(`Index (${index}) out of bounds`);
