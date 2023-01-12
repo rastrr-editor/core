@@ -129,8 +129,10 @@ export default class CanvasLayer implements Layer {
     this.#emitter = emitter;
   }
 
-  removeEmitter(): void {
-    this.#emitter = null;
+  removeEmitter(emitter: LayerEmitter): void {
+    if (this.#emitter === emitter) {
+      this.#emitter = null;
+    }
   }
 
   setOpacity(value: number): void {

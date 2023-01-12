@@ -58,7 +58,7 @@ export interface Layer extends LayerData {
   setOffset(value: Rastrr.Point): void;
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
-  removeEmitter(): void;
+  removeEmitter(emitter: LayerEmitter): void;
   emitChange(): void;
   commitContentChanges(): void;
 }
