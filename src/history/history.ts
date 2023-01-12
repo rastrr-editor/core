@@ -1,10 +1,17 @@
+import EventEmitter from 'eventemitter3';
 import uniqid from 'uniqid';
 import type { Command } from '~/commands';
+import { HistoryEmitter } from './interface';
 
-export default class History {
+export default class History implements Iterable<Command> {
   readonly #commands: Command[] = [];
   #lastAppliedCommandIndex = -1;
   #lock: string | null = null;
+  #emitter: HistoryEmitter;
+
+  constructor() {
+    this.#emitter = new EventEmitter() as HistoryEmitter;
+  }
 
   get index(): number {
     return this.#lastAppliedCommandIndex;
@@ -14,16 +21,28 @@ export default class History {
     return this.#lock != null;
   }
 
+  get emitter(): HistoryEmitter {
+    return this.#emitter;
+  }
+
   push(command: Command): void {
     // If new command is pushed and applied command is not the last - drop all commands after the applied
     if (this.#lastAppliedCommandIndex < this.#commands.length - 1) {
+      const prevLength = this.#commands.length;
       this.#commands.splice(
         this.#lastAppliedCommandIndex + 1,
         this.#commands.length
       );
+      this.#emitter.emit('resize', prevLength, this.#commands.length);
     }
     // TODO: limit stack size
     this.#lastAppliedCommandIndex = this.#commands.push(command) - 1;
+    this.#emitter.emit(
+      'push',
+      this.#lastAppliedCommandIndex,
+      command,
+      this.#commands.length
+    );
   }
 
   async undo(): Promise<boolean> {
@@ -73,14 +92,30 @@ export default class History {
       }
       const command = this.#commands[this.#lastAppliedCommandIndex];
       if (undo) {
-        this.#lastAppliedCommandIndex--;
         opIsSuccessful = await command.undo();
+        this.#emitter.emit(
+          'undo',
+          this.#lastAppliedCommandIndex,
+          command,
+          opIsSuccessful
+        );
+        this.#lastAppliedCommandIndex--;
       } else {
         opIsSuccessful = await command.execute();
+        this.#emitter.emit(
+          'redo',
+          this.#lastAppliedCommandIndex,
+          command,
+          opIsSuccessful
+        );
       }
     }
     this.unlock(id);
     return this.#lastAppliedCommandIndex;
+  }
+
+  [Symbol.iterator](): IterableIterator<Command> {
+    return this.#commands.values();
   }
 
   entries(): IterableIterator<[number, Command]> {
@@ -92,6 +127,7 @@ export default class History {
       throw new Error('History is already locked');
     }
     this.#lock = uniqid();
+    this.#emitter.emit('lock');
     return this.#lock;
   }
 
@@ -102,5 +138,6 @@ export default class History {
       );
     }
     this.#lock = null;
+    this.#emitter.emit('unlock');
   }
 }
