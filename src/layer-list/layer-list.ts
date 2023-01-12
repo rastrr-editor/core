@@ -78,8 +78,21 @@ export default class LayerList {
     return this;
   }
 
-  get(index: number): Layer | undefined {
-    return this.#layers[index];
+  get(id: string): Layer | undefined;
+  get(index: number): Layer | undefined;
+  get(indexOrId: number | string): Layer | undefined {
+    if (typeof indexOrId === 'string') {
+      return this.#layers.find(({ id }) => id === indexOrId);
+    }
+    return this.#layers[indexOrId];
+  }
+
+  indexOf(layer: Layer): number {
+    return this.#layers.indexOf(layer);
+  }
+
+  has(layer: Layer): boolean {
+    return this.indexOf(layer) !== -1;
   }
 
   remove(index: number): Layer {
@@ -91,7 +104,9 @@ export default class LayerList {
       this.#active = undefined;
     }
     this.#tmpLayers.delete(layer);
+    this.#layerIds.delete(layer.id);
     this.#emitter?.emit('remove', layer);
+    layer.removeEmitter(this.#emitter);
 
     return layer;
   }

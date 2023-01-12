@@ -6,6 +6,7 @@ import type {
   RenderStrategyConstructor,
 } from '~/render';
 import { CanvasRenderStrategy } from '~/render';
+import { History } from '~/history';
 
 const debug = createDebug('viewport');
 
@@ -37,14 +38,12 @@ export default class Viewport {
   readonly container: HTMLElement;
   readonly layers = new LayerList();
   readonly strategy: RenderStrategy;
+  readonly history: History;
   readonly options: Required<ViewportOptions>;
   #canvas: HTMLCanvasElement;
   #renderQueueSize = 0;
   #renderMode: RenderMode = RenderMode.IMMEDIATE;
   #meta: unknown;
-
-  // TODO after implements history
-  // history: History;
 
   constructor(container: HTMLElement, options: ViewportOptions) {
     this.container = container;
@@ -58,6 +57,7 @@ export default class Viewport {
 
     const Renderer = Viewport.#getClassRenderer(this.options.strategy);
     this.strategy = new Renderer(this.#canvas, this.layers);
+    this.history = new History();
     this.watch();
   }
 

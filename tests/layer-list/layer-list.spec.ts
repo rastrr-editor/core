@@ -18,6 +18,7 @@ const createLayer = (id = uniqid()): Layer => ({
   canvas: null,
 
   drawContents(): void {},
+  drawImageData(): void {},
   setWidth(): void {},
   setHeight(): void {},
   setOpacity(): void {},
@@ -25,6 +26,7 @@ const createLayer = (id = uniqid()): Layer => ({
   setOffset(): void {},
   setData(): void {},
   setEmitter(): void {},
+  removeEmitter(): void {},
   emitChange(): void {},
   commitContentChanges(): void {},
 });

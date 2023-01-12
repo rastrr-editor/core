@@ -15,4 +15,15 @@ declare namespace Rastrr {
     x: number;
     y: number;
   };
+
+  type Area = {
+    /**
+     * Top left corner
+     */
+    start: Point;
+    /**
+     * Bottom right corner
+     */
+    end: Point;
+  };
 }

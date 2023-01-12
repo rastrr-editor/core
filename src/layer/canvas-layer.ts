@@ -14,7 +14,7 @@ export default class CanvasLayer implements Layer {
   readonly #context: CanvasRenderingContext2D;
   readonly type = 'canvas';
   #options: LayerOptions;
-  #emitter?: LayerEmitter;
+  #emitter: LayerEmitter | null = null;
   #alpha: ColorRange = 255;
   #alphaData!: Uint8Array;
   #visible = true;
@@ -103,6 +103,16 @@ export default class CanvasLayer implements Layer {
       destSize?.y ?? layer.height
     );
     this.commitContentChanges();
+    this.#emitter?.emit('change', this);
+  }
+
+  drawImageData(
+    imageData: ImageData,
+    offset: Rastrr.Point = { x: 0, y: 0 }
+  ): void {
+    this.#context.putImageData(imageData, offset.x, offset.y);
+    this.commitContentChanges();
+    this.#emitter?.emit('change', this);
   }
 
   setData(data: Uint8ClampedArray): void {
@@ -117,6 +127,12 @@ export default class CanvasLayer implements Layer {
 
   setEmitter(emitter: LayerEmitter): void {
     this.#emitter = emitter;
+  }
+
+  removeEmitter(emitter: LayerEmitter): void {
+    if (this.#emitter === emitter) {
+      this.#emitter = null;
+    }
   }
 
   setOpacity(value: number): void {

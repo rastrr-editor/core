@@ -3,10 +3,13 @@ import {
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
   getLayerCanvasContext,
+  normalizeAreaCoords,
+  createNewLayer,
 } from '~/commands/helpers';
-import { LayerFactory } from '~/layer';
+import { LayerFactory, type Layer } from '~/layer';
 import { Color } from '~/color';
 import ShapeCommand, { type ShapeCommandOptions } from '../shape-command';
+import { Rectangle } from '~/geometry';
 
 interface RectOptions extends ShapeCommandOptions {
   operation?: 'fill' | 'stroke';
@@ -26,8 +29,29 @@ export default class RectCommand extends ShapeCommand {
   }
 
   async execute(): Promise<boolean> {
-    let startPosition: Rastrr.Point | null = null;
-    const { options, context, layer } = this;
+    if (this.createdLayer != null) {
+      this.layers.add(this.createdLayer);
+      this.layers.setActive(this.layers.length - 1);
+      return true;
+    }
+    const { rect, layer } = await this.previewDraw();
+    if (rect != null) {
+      this.finalDraw(rect, layer);
+      return true;
+    }
+    return false;
+  }
+
+  protected async previewDraw(): Promise<{
+    rect: Rectangle | null;
+    layer: Layer;
+  }> {
+    const { options } = this;
+    const { layer, index } = createNewLayer(this.layers, { tmp: true });
+    const context = getLayerCanvasContext(layer);
+
+    // Rectangle top-left corner
+    let corner: Rastrr.Point | null = null;
     applyOptionsToCanvasCtx({
       // There we use same color as for brush cursor
       options: { ...options, color: Color.from('#c1c1c1', 'hex') },
@@ -35,71 +59,55 @@ export default class RectCommand extends ShapeCommand {
       layer,
       operation: 'stroke',
     });
-    this.context.globalCompositeOperation = 'copy';
+    context.globalCompositeOperation = 'copy';
     let width = 0;
     let height = 0;
     for await (const rawPoint of this.iterable) {
       const point = { x: Math.round(rawPoint.x), y: Math.round(rawPoint.y) };
-      if (!startPosition) {
+      if (!corner) {
         if (
           point.x < 0 ||
-          point.x > this.layer.canvas.width ||
+          point.x > layer.width ||
           point.y < 0 ||
-          point.y > this.layer.canvas.height
+          point.y > layer.height
         ) {
           break;
         }
-        startPosition = point;
+        corner = point;
       }
-      if (
-        startPosition &&
-        (startPosition?.x !== point.x || startPosition?.y !== point.y)
-      ) {
-        width = point.x - startPosition.x;
+      if (corner && (corner?.x !== point.x || corner?.y !== point.y)) {
+        width = point.x - corner.x;
         // TODO: detect if shift is pressed and make height equal to width
-        height = point.y - startPosition.y;
-        this.context.strokeRect(
-          startPosition.x,
-          startPosition.y,
-          width,
-          height
-        );
-        this.layer.emitChange();
+        height = point.y - corner.y;
+        context.strokeRect(corner.x, corner.y, width, height);
+        layer.emitChange();
       }
     }
-
-    if (startPosition != null && width !== 0 && height !== 0) {
-      // Normalize width and height
-      if (height < 0) {
-        height = Math.abs(height);
-        startPosition.y -= height;
-      }
-      if (width < 0) {
-        width = Math.abs(width);
-        startPosition.x -= width;
-      }
-      const size = { x: width, y: height };
-      this.finalDraw(startPosition, size);
-    } else {
-      this.layers.remove(this.insertIndex);
+    this.layers.remove(index);
+    let rect: Rectangle | null = null;
+    if (corner != null && width !== 0 && height !== 0) {
+      const area = normalizeAreaCoords(corner, { x: width, y: height });
+      rect = new Rectangle(area.start, area.end.x, area.end.y);
     }
-    return true;
+    return { rect, layer };
   }
 
-  protected finalDraw(startPosition: Rastrr.Point, size: Rastrr.Point) {
-    const layer = this.layers.remove(this.insertIndex);
-    // Create new layer
-    const newLayer = LayerFactory.setType(layer.type).empty(size.x, size.y, {
-      opacity: layer.opacity,
-    });
-    newLayer.setOffset(startPosition);
-    newLayer.name = this.getLayerName();
-    newLayer.locked = true;
-    this.layers.add(newLayer);
+  protected finalDraw(rect: Rectangle, layer: Layer) {
+    this.createdLayer = LayerFactory.setType(layer.type).empty(
+      rect.width,
+      rect.height,
+      {
+        opacity: layer.opacity,
+      }
+    );
+    this.createdLayer.setOffset(rect.corner);
+    this.createdLayer.name = this.getLayerName();
+    this.createdLayer.locked = true;
+    this.layers.add(this.createdLayer);
     this.layers.setActive(this.layers.length - 1);
 
     // Draw rect on new layer
-    const context = getLayerCanvasContext(newLayer);
+    const context = getLayerCanvasContext(this.createdLayer);
     const { options } = this;
     applyOptionsToCanvasCtx({
       options,
@@ -109,8 +117,8 @@ export default class RectCommand extends ShapeCommand {
     });
     const method =
       this.options.operation === 'fill' ? 'fillRect' : 'strokeRect';
-    context[method](0, 0, size.x, size.y);
-    newLayer.commitContentChanges();
-    newLayer.emitChange();
+    context[method](0, 0, rect.width, rect.height);
+    this.createdLayer.commitContentChanges();
+    this.createdLayer.emitChange();
   }
 }

@@ -1,22 +1,23 @@
 import { LayerList } from '~/layer-list';
-import { Layer, LayerFactory } from '~/layer';
-import { CommandOptions } from './interface';
+import { type Layer, LayerFactory } from '~/layer';
+import { type CommandOptions } from './interface';
 import { Color } from '~/color';
 
-export function createTemporaryLayer(layers: LayerList): {
-  layer: Layer;
-  index: number;
-} {
-  if (layers.activeLayer == null || layers.activeIndex == null) {
-    throw new TypeError('Active layer is not set');
+export function createTemporaryLayer(
+  layers: LayerList,
+  srcLayer: Layer
+): { layer: Layer; index: number } | null {
+  const srcIndex = layers.indexOf(srcLayer);
+  if (srcIndex === -1) {
+    return null;
   }
-  const { activeLayer: layer, activeIndex } = layers;
-  const tmpLayer = LayerFactory.setType(layer.type).empty(
-    layer.width,
-    layer.height,
-    { opacity: layer.opacity }
+  const tmpLayer = LayerFactory.setType(srcLayer.type).empty(
+    srcLayer.width,
+    srcLayer.height,
+    { opacity: srcLayer.opacity }
   );
-  const insertIndex = activeIndex + 1;
+  tmpLayer.setOffset(srcLayer.offset);
+  const insertIndex = srcIndex + 1;
   layers.insert(insertIndex, tmpLayer, { tmp: true });
 
   return { layer: tmpLayer, index: insertIndex };
@@ -46,14 +47,21 @@ export function createNewLayer(
 
 export function commitTemporaryData(
   layers: LayerList,
-  temporaryIndex: number
-): void {
-  const layer = layers.remove(temporaryIndex);
-
-  if (layers.activeLayer != null && layers.activeIndex === temporaryIndex - 1) {
-    layers.activeLayer.drawContents(layer);
-    layers.activeLayer.emitChange();
+  temporaryIndex: number,
+  destLayer: Layer,
+  callbacks?: {
+    beforeCommit?: (tmpLayer: Layer, destLayer: Layer) => void;
+    afterCommit?: (tmpLayer: Layer, destLayer: Layer) => void;
   }
+): boolean {
+  const layer = layers.remove(temporaryIndex);
+  if (layers.has(destLayer)) {
+    callbacks?.beforeCommit?.(layer, destLayer);
+    destLayer.drawContents(layer);
+    callbacks?.afterCommit?.(layer, destLayer);
+    return true;
+  }
+  return false;
 }
 
 export function commitTemporaryDataToNewLayer(
@@ -75,7 +83,6 @@ export function commitTemporaryDataToNewLayer(
   layers.setActive(layers.length - 1);
   if (layers.activeLayer != null) {
     layers.activeLayer.drawContents(layer, { srcOffset, srcSize: size });
-    layers.activeLayer.emitChange();
   }
 }
 
@@ -149,4 +156,35 @@ export async function drawLine(
       layer.emitChange();
     }
   }
+}
+
+export function extractImageDataForArea(
+  context: CanvasRenderingContext2D,
+  start: Rastrr.Point,
+  end: Rastrr.Point
+): ImageData | null {
+  // Nothing to extract
+  if (start.x - end.x == 0 || start.y - end.y == 0) {
+    return null;
+  }
+  return context.getImageData(
+    start.x,
+    start.y,
+    end.x - start.x,
+    end.y - start.y
+  );
+}
+
+export function normalizeAreaCoords(start: Rastrr.Point, end: Rastrr.Point) {
+  const normalizedStart = { ...start };
+  const normalizedEnd = { ...end };
+  if (end.y < 0) {
+    normalizedEnd.y = Math.abs(end.y);
+    normalizedStart.y -= normalizedEnd.y;
+  }
+  if (end.x < 0) {
+    normalizedEnd.x = Math.abs(end.x);
+    normalizedStart.x -= normalizedEnd.x;
+  }
+  return { start: normalizedStart, end: normalizedEnd };
 }

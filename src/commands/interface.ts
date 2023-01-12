@@ -9,4 +9,5 @@ export type CommandOptions = {
 export interface Command {
   name: string;
   execute(): Promise<boolean>;
+  undo(): Promise<boolean>;
 }

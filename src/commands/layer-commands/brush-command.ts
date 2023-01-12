@@ -1,39 +1,61 @@
 import { CommandOptions, LayerCommand } from '~/commands';
-import { LayerList } from '~/layer-list';
+import type { LayerList } from '~/layer-list';
 import {
-  createTemporaryLayer,
   commitTemporaryData,
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
   drawLine,
+  getLayerCanvasContext,
+  createTemporaryLayer,
 } from '~/commands/helpers';
 
 export default class BrushCommand extends LayerCommand {
   readonly options: CommandOptions;
   readonly name = 'Кисть';
   #layers: LayerList;
-  #insertIndex: number;
 
   constructor(
     layers: LayerList,
     iterable: AsyncIterable<Rastrr.Point>,
     options?: Partial<CommandOptions>
   ) {
-    const { layer, index } = createTemporaryLayer(layers);
-    super(layer, iterable);
-    this.#insertIndex = index;
+    if (layers.activeLayer == null) {
+      throw new TypeError('Active layer is not set');
+    }
+    super(layers.activeLayer, iterable);
     this.#layers = layers;
     this.options = applyDefaultOptions(options);
   }
 
   async execute(): Promise<boolean> {
-    const { options, context, layer, iterable } = this;
+    this.iterable.rewind();
+    const { options, iterable } = this;
+    const result = createTemporaryLayer(this.#layers, this.layer);
+    if (result == null) {
+      return false;
+    }
+    const { layer, index } = result;
+    // Prepare canvas context
+    const context = getLayerCanvasContext(layer);
     applyOptionsToCanvasCtx({ options, context, layer });
-    this.context.globalCompositeOperation = 'copy';
-
+    context.globalCompositeOperation = 'copy';
+    // Draw
     await drawLine(context, layer, iterable);
-    commitTemporaryData(this.#layers, this.#insertIndex);
+    // Commit
+    const beforeCommit = () => {
+      // Modify area size with respect of line width
+      this.createBackup(Math.ceil((this.options.width ?? 1) / 1.5));
+    };
+    return commitTemporaryData(this.#layers, index, this.layer, {
+      beforeCommit,
+    });
+  }
 
+  async undo(): Promise<boolean> {
+    if (this.backup == null || !this.#layers.has(this.layer)) {
+      return false;
+    }
+    this.layer.drawImageData(this.backup.imageData, this.backup.area.start);
     return true;
   }
 }

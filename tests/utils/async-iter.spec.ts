@@ -8,6 +8,7 @@ import {
   any,
   repeat,
   until,
+  RewindableAsyncIterableIterator,
 } from '~/utils/async-iter';
 
 async function* asyncGenerator(): AsyncGenerator<number> {
@@ -169,6 +170,30 @@ describe('async-iter', () => {
         array.push(item);
       }
       expect(array).toEqual([0, 1, 2, 0, 1, 2, 0]);
+    });
+  });
+
+  describe('rewindable async iterable iterator', () => {
+    test('should rewind iterable', async () => {
+      const iterable = new RewindableAsyncIterableIterator(
+        every(asyncGenerator(), (x) => x < 2)
+      );
+      const initialIterableArray: number[] = [];
+      const noRewindArray: number[] = [];
+      const rewindArray: number[] = [];
+      for await (const item of iterable) {
+        initialIterableArray.push(item);
+      }
+      expect(initialIterableArray).toEqual([0, 1]);
+      for await (const item of iterable) {
+        noRewindArray.push(item);
+      }
+      expect(noRewindArray).toEqual([]);
+      iterable.rewind();
+      for await (const item of iterable) {
+        rewindArray.push(item);
+      }
+      expect(rewindArray).toEqual([0, 1]);
     });
   });
 });

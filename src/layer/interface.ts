@@ -50,6 +50,7 @@ export interface Layer extends LayerData {
   readonly canvas: CanvasImageSource;
 
   drawContents(layer: Layer, options?: LayerDrawContentsOptions): void;
+  drawImageData(imageData: ImageData, offset?: Rastrr.Point): void;
   setWidth(value: number): void;
   setHeight(value: number): void;
   setOpacity(value: number): void;
@@ -57,6 +58,7 @@ export interface Layer extends LayerData {
   setOffset(value: Rastrr.Point): void;
   setData(data: Uint8ClampedArray): void;
   setEmitter(emitter: LayerEmitter): void;
+  removeEmitter(emitter: LayerEmitter): void;
   emitChange(): void;
   commitContentChanges(): void;
 }
