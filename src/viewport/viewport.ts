@@ -29,7 +29,7 @@ type ViewportOptions = {
   htmlSizeDelta?: Rastrr.Point;
 };
 
-enum RenderMode {
+export enum RenderMode {
   IMMEDIATE = 0,
   BATCH = 1,
 }

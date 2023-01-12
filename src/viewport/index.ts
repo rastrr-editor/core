@@ -1,1 +1,1 @@
-export { default as Viewport } from './viewport';
+export { default as Viewport, RenderMode } from './viewport';
