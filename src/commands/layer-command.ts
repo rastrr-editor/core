@@ -65,6 +65,10 @@ export default abstract class LayerCommand implements Command {
     this.context = getLayerCanvasContext(layer);
   }
 
+  get layerIsModified(): boolean {
+    return this.backup != null;
+  }
+
   abstract execute(): Promise<boolean>;
 
   abstract undo(): Promise<boolean>;

@@ -46,9 +46,11 @@ export default class BrushCommand extends LayerCommand {
       // Modify area size with respect of line width
       this.createBackup(Math.ceil((this.options.width ?? 1) / 1.5));
     };
-    return commitTemporaryData(this.#layers, index, this.layer, {
-      beforeCommit,
-    });
+    return (
+      commitTemporaryData(this.#layers, index, this.layer, {
+        beforeCommit,
+      }) && this.layerIsModified
+    );
   }
 
   async undo(): Promise<boolean> {

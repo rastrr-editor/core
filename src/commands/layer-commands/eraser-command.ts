@@ -67,7 +67,7 @@ export default class EraserCommand extends LayerCommand {
         }
       }
     }
-    return true;
+    return this.layerIsModified;
   }
 
   async undo() {
