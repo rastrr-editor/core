@@ -3,3 +3,5 @@ node_modules
 dist
 lib
 example/build
+# Editor directories and files
+.vscode/*
