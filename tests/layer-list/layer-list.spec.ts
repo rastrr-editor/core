@@ -26,6 +26,7 @@ const createLayer = (id = uniqid()): Layer => ({
   setOffset(): void {},
   setData(): void {},
   setEmitter(): void {},
+  removeEmitter(): void {},
   emitChange(): void {},
   commitContentChanges(): void {},
 });

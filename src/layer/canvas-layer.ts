@@ -14,7 +14,7 @@ export default class CanvasLayer implements Layer {
   readonly #context: CanvasRenderingContext2D;
   readonly type = 'canvas';
   #options: LayerOptions;
-  #emitter?: LayerEmitter;
+  #emitter: LayerEmitter | null = null;
   #alpha: ColorRange = 255;
   #alphaData!: Uint8Array;
   #visible = true;
@@ -127,6 +127,10 @@ export default class CanvasLayer implements Layer {
 
   setEmitter(emitter: LayerEmitter): void {
     this.#emitter = emitter;
+  }
+
+  removeEmitter(): void {
+    this.#emitter = null;
   }
 
   setOpacity(value: number): void {
