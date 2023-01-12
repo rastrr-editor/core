@@ -104,6 +104,7 @@ export default class LayerList {
       this.#active = undefined;
     }
     this.#tmpLayers.delete(layer);
+    this.#layerIds.delete(layer.id);
     this.#emitter?.emit('remove', layer);
     layer.removeEmitter(this.#emitter);
 
