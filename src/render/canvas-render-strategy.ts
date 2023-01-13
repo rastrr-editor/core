@@ -1,4 +1,4 @@
-import type { BlobOptions, RenderStrategy } from './interface';
+import type { BlobOptions, RenderOptions, RenderStrategy } from './interface';
 import { LayerList } from '~/layer-list';
 import { debug } from '~/utils';
 
@@ -16,14 +16,14 @@ export default class CanvasRenderStrategy implements RenderStrategy {
     this.#context = ctx;
   }
 
-  render(viewportOffset: Rastrr.Point = { x: 0, y: 0 }): Promise<void> {
+  render(options: RenderOptions): Promise<void> {
     return new Promise((resolve) => {
       debug('request animation frame for render');
       requestAnimationFrame(() => {
         // FIXME: multiple render calls might be grouped in one animation frame
         // we should perform only one render
         this.#clean();
-        this.#renderImage(this.#context, viewportOffset);
+        this.#renderImage(this.#context, options);
         debug('render done');
         resolve();
       });
@@ -39,22 +39,38 @@ export default class CanvasRenderStrategy implements RenderStrategy {
     if (ctx === null) {
       throw new Error('Failed to get 2D context');
     }
-    this.#renderImage(ctx);
+    this.#renderImage(ctx, { size: options.imageSize });
     return new Promise((resolve) => {
       canvas.toBlob(resolve, options.mimeType, options.quality);
     });
   }
 
-  #renderImage(
-    context: CanvasRenderingContext2D,
-    imageOffset: Rastrr.Point = { x: 0, y: 0 }
-  ) {
+  #renderImage(context: CanvasRenderingContext2D, options: RenderOptions) {
+    const { offset = { x: 0, y: 0 }, size = { x: 0, y: 0 } } = options;
     for (const layer of this.#layers) {
       if (layer.visible) {
+        const sx = layer.offset.x < 0 ? Math.abs(layer.offset.x) : 0;
+        const sy = layer.offset.y < 0 ? Math.abs(layer.offset.y) : 0;
+        const sWidth =
+          layer.offset.x + layer.width > size.x
+            ? layer.width - Math.abs(size.x - (layer.offset.x + layer.width))
+            : layer.width;
+        const sHeight =
+          layer.offset.y + layer.height > size.y
+            ? layer.height - Math.abs(size.y - (layer.offset.y + layer.height))
+            : layer.height;
+        const dx = (layer.offset.x < 0 ? 0 : layer.offset.x) + offset.x;
+        const dy = (layer.offset.y < 0 ? 0 : layer.offset.y) + offset.y;
         context.drawImage(
           layer.canvas,
-          layer.offset.x + imageOffset.x,
-          layer.offset.y + imageOffset.y
+          sx,
+          sy,
+          sWidth,
+          sHeight,
+          dx,
+          dy,
+          sWidth,
+          sHeight
         );
       }
     }

@@ -12,7 +12,12 @@ export type BlobOptions = {
   quality?: number;
 };
 
+export type RenderOptions = {
+  offset?: Rastrr.Point;
+  size?: Rastrr.Point;
+};
+
 export interface RenderStrategy {
-  render(viewportOffset: Rastrr.Point): Promise<void>;
+  render(options: RenderOptions): Promise<void>;
   toBlob(options: BlobOptions): Promise<Blob | null>;
 }
