@@ -1,5 +1,7 @@
 # Rastrr editor core
 
+Core of the [rastrr editor client](https://github.com/rastrr-editor/client)
+
 ## Install
 
 1. Create file `.npmrc` in the root of the project with given contents:
