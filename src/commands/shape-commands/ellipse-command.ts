@@ -3,10 +3,13 @@ import {
   applyOptionsToCanvasCtx,
   applyDefaultOptions,
   getLayerCanvasContext,
+  createNewLayer,
+  normalizeAreaCoords,
 } from '~/commands/helpers';
-import { LayerFactory } from '~/layer';
+import { LayerFactory, type Layer } from '~/layer';
 import { Color } from '~/color';
 import ShapeCommand, { type ShapeCommandOptions } from '../shape-command';
+import { Rectangle } from '~/geometry';
 
 interface EllipseOptions extends ShapeCommandOptions {
   operation?: 'fill' | 'stroke';
@@ -26,9 +29,29 @@ export default class RectCommand extends ShapeCommand {
   }
 
   async execute(): Promise<boolean> {
-    let startPosition: Rastrr.Point | null = null;
+    if (this.createdLayer != null) {
+      this.layers.add(this.createdLayer);
+      this.layers.setActive(this.layers.length - 1);
+      return true;
+    }
+    const { rect, layer } = await this.previewDraw();
+    if (rect != null) {
+      this.finalDraw(rect, layer);
+      return true;
+    }
+    return false;
+  }
 
-    const { options, context, layer } = this;
+  protected async previewDraw(): Promise<{
+    rect: Rectangle | null;
+    layer: Layer;
+  }> {
+    const { options } = this;
+    const { layer, index } = createNewLayer(this.layers, { tmp: true });
+    const context = getLayerCanvasContext(layer);
+
+    // Ellipse center
+    let center: Rastrr.Point | null = null;
     applyOptionsToCanvasCtx({
       // There we use same color as for brush cursor
       options: { ...options, color: Color.from('#c1c1c1', 'hex') },
@@ -36,80 +59,71 @@ export default class RectCommand extends ShapeCommand {
       layer,
       operation: 'stroke',
     });
-
-    this.context.globalCompositeOperation = 'copy';
-
+    context.globalCompositeOperation = 'copy';
     let radiusX = 0;
     let radiusY = 0;
-
     for await (const rawPoint of this.iterable) {
       const point = { x: Math.round(rawPoint.x), y: Math.round(rawPoint.y) };
-      if (!startPosition) {
+      if (!center) {
         if (
           point.x < 0 ||
-          point.x > this.layer.canvas.width ||
+          point.x > layer.width ||
           point.y < 0 ||
-          point.y > this.layer.canvas.height
+          point.y > layer.height
         ) {
           break;
         }
-        startPosition = point;
+        center = point;
       }
-
-      if (
-        startPosition &&
-        (startPosition?.x !== point.x || startPosition?.y !== point.y)
-      ) {
-        radiusX = Math.abs(point.x - startPosition.x);
+      if (center && (center?.x !== point.x || center?.y !== point.y)) {
+        radiusX = Math.abs(point.x - center.x);
         // TODO: detect if shift is pressed and make height equal to width
-        radiusY = Math.abs(point.y - startPosition.y);
-
-        this.context.beginPath();
-        this.context.ellipse(
-          startPosition.x,
-          startPosition.y,
+        radiusY = Math.abs(point.y - center.y);
+        context.beginPath();
+        context.ellipse(
+          center.x,
+          center.y,
           radiusX,
           radiusY,
           0,
           0,
           2 * Math.PI
         );
-        this.context.stroke();
-
-        this.layer.emitChange();
+        context.stroke();
+        layer.emitChange();
       }
     }
-
-    if (startPosition != null && radiusX !== 0 && radiusY !== 0) {
-      // startPosition is a center of ellipse, so needed to calc start position of a whole shape
-      startPosition = {
-        x: startPosition.x - radiusX,
-        y: startPosition.y - radiusY,
-      };
-      const size = { x: radiusX * 2, y: radiusY * 2 };
-      this.finalDraw(startPosition, size);
-    } else {
-      this.layers.remove(this.insertIndex);
+    this.layers.remove(index);
+    let rect: Rectangle | null = null;
+    if (center != null && radiusX !== 0 && radiusY !== 0) {
+      // Calculate the top-left corner of a whole shape area
+      const corner = { x: center.x - radiusX, y: center.y - radiusY };
+      // Doubling radiuses to get full area width/height
+      const area = normalizeAreaCoords(corner, {
+        x: radiusX * 2,
+        y: radiusY * 2,
+      });
+      rect = new Rectangle(area.start, area.end.x, area.end.y);
     }
-
-    return true;
+    return { rect, layer };
   }
 
-  protected finalDraw(startPosition: Rastrr.Point, size: Rastrr.Point) {
-    const layer = this.layers.remove(this.insertIndex);
-    // Create new layer
-    const newLayer = LayerFactory.setType(layer.type).empty(size.x, size.y, {
-      opacity: layer.opacity,
-    });
-
-    newLayer.setOffset(startPosition);
-    newLayer.name = this.getLayerName();
-    newLayer.locked = true;
-    this.layers.add(newLayer);
+  protected finalDraw(rect: Rectangle, layer: Layer): void {
+    this.createdLayer = LayerFactory.setType(layer.type).empty(
+      rect.width,
+      rect.height,
+      {
+        opacity: layer.opacity,
+      }
+    );
+    this.createdLayer.setOffset(rect.corner);
+    this.createdLayer.name = this.getLayerName();
+    this.createdLayer.locked = true;
+    this.layers.add(this.createdLayer);
     this.layers.setActive(this.layers.length - 1);
 
-    // Draw rect on new layer
-    const context = getLayerCanvasContext(newLayer);
+    // Draw ellipse on a new layer
+    const context = getLayerCanvasContext(this.createdLayer);
     const { options } = this;
     applyOptionsToCanvasCtx({
       options,
@@ -117,25 +131,21 @@ export default class RectCommand extends ShapeCommand {
       layer,
       operation: options.operation,
     });
-
     context.beginPath();
 
-    // size is a width/height of a whole layer
-    // Needed to divide by 2 to get center and radiis of the ellipse
+    // Needed to divide by 2 to get center and radiuses of the ellipse
     context.ellipse(
-      size.x / 2,
-      size.y / 2,
-      size.x / 2,
-      size.y / 2,
+      rect.width / 2,
+      rect.height / 2,
+      rect.width / 2,
+      rect.height / 2,
       0,
       0,
       2 * Math.PI
     );
-
     const method = this.options.operation === 'fill' ? 'fill' : 'stroke';
     context[method]();
-
-    newLayer.commitContentChanges();
-    newLayer.emitChange();
+    this.createdLayer.commitContentChanges();
+    this.createdLayer.emitChange();
   }
 }
