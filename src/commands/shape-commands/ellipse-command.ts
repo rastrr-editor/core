@@ -98,7 +98,7 @@ export default class RectCommand extends ShapeCommand {
     if (center != null && radiusX !== 0 && radiusY !== 0) {
       // Calculate the top-left corner of a whole shape area
       const corner = { x: center.x - radiusX, y: center.y - radiusY };
-      // Doubling radiis to get full area width/height
+      // Doubling radiuses to get full area width/height
       const area = normalizeAreaCoords(corner, {
         x: radiusX * 2,
         y: radiusY * 2,
@@ -133,7 +133,7 @@ export default class RectCommand extends ShapeCommand {
     });
     context.beginPath();
 
-    // Needed to divide by 2 to get center and radiis of the ellipse
+    // Needed to divide by 2 to get center and radiuses of the ellipse
     context.ellipse(
       rect.width / 2,
       rect.height / 2,
