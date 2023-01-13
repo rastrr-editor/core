@@ -50,8 +50,8 @@ export default class RectCommand extends ShapeCommand {
     const { layer, index } = createNewLayer(this.layers, { tmp: true });
     const context = getLayerCanvasContext(layer);
 
-    // Ellipse center
-    let center: Rastrr.Point | null = null;
+    // Ellipse top-left corner
+    let corner: Rastrr.Point | null = null;
     applyOptionsToCanvasCtx({
       // There we use same color as for brush cursor
       options: { ...options, color: Color.from('#c1c1c1', 'hex') },
@@ -60,11 +60,11 @@ export default class RectCommand extends ShapeCommand {
       operation: 'stroke',
     });
     context.globalCompositeOperation = 'copy';
-    let radiusX = 0;
-    let radiusY = 0;
+    let width = 0;
+    let height = 0;
     for await (const rawPoint of this.iterable) {
       const point = { x: Math.round(rawPoint.x), y: Math.round(rawPoint.y) };
-      if (!center) {
+      if (!corner) {
         if (
           point.x < 0 ||
           point.x > layer.width ||
@@ -73,18 +73,18 @@ export default class RectCommand extends ShapeCommand {
         ) {
           break;
         }
-        center = point;
+        corner = point;
       }
-      if (center && (center?.x !== point.x || center?.y !== point.y)) {
-        radiusX = Math.abs(point.x - center.x);
+      if (corner && (corner?.x !== point.x || corner?.y !== point.y)) {
+        width = point.x - corner.x;
         // TODO: detect if shift is pressed and make height equal to width
-        radiusY = Math.abs(point.y - center.y);
+        height = point.y - corner.y;
         context.beginPath();
         context.ellipse(
-          center.x,
-          center.y,
-          radiusX,
-          radiusY,
+          corner.x + width / 2,
+          corner.y + height / 2,
+          Math.abs(width / 2),
+          Math.abs(height / 2),
           0,
           0,
           2 * Math.PI
@@ -95,14 +95,8 @@ export default class RectCommand extends ShapeCommand {
     }
     this.layers.remove(index);
     let rect: Rectangle | null = null;
-    if (center != null && radiusX !== 0 && radiusY !== 0) {
-      // Calculate the top-left corner of a whole shape area
-      const corner = { x: center.x - radiusX, y: center.y - radiusY };
-      // Doubling radiuses to get full area width/height
-      const area = normalizeAreaCoords(corner, {
-        x: radiusX * 2,
-        y: radiusY * 2,
-      });
+    if (corner != null && width !== 0 && height !== 0) {
+      const area = normalizeAreaCoords(corner, { x: width, y: height });
       rect = new Rectangle(area.start, area.end.x, area.end.y);
     }
     return { rect, layer };
