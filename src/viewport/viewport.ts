@@ -107,7 +107,10 @@ export default class Viewport {
   render(): Promise<void> {
     if (this.#renderMode === RenderMode.IMMEDIATE) {
       debug('call strategy render');
-      return this.strategy.render(this.offset);
+      return this.strategy.render({
+        offset: this.offset,
+        size: this.options.imageSize,
+      });
     }
     return this.batchRender();
   }
