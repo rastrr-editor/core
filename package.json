@@ -1,6 +1,6 @@
 {
   "name": "@rastrr-editor/core",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
