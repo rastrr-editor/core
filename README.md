@@ -15,6 +15,20 @@ Core of the [rastrr editor client](https://github.com/rastrr-editor/client)
    /// <reference types="@rastrr-editor/core/global" />
    ```
 
+## Architecture
+
+**Main classes**
+
+![Main classes](https://rastrr.ru/github/core-classes.png)
+
+**Interfaces**
+
+![Interfaces](https://rastrr.ru/github/core-interfaces.png)
+
+**Base commands**
+
+![Base commands](https://rastrr.ru/github/core-commands.png)
+
 ## Development
 
 ### Quick Start
