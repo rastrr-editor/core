@@ -35,8 +35,6 @@ export type LayerBackupData = {
 // TODO: implement write lock for the layer to prevent race conditions
 export default abstract class LayerCommand implements Command {
   readonly name: string = 'unnamed';
-  // TODO: delete
-  protected context: CanvasRenderingContext2D;
 
   /**
    * Working layer, usually the active layer
@@ -62,7 +60,6 @@ export default abstract class LayerCommand implements Command {
         y: point.y - layer.offset.y,
       }))
     );
-    this.context = getLayerCanvasContext(layer);
   }
 
   get layerIsModified(): boolean {
