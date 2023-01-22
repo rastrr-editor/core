@@ -1,6 +1,7 @@
 import type { BlobOptions, RenderOptions, RenderStrategy } from './interface';
 import { LayerList } from '~/layer-list';
 import { debug } from '~/utils';
+import { Color } from '~/color';
 
 export default class CanvasRenderStrategy implements RenderStrategy {
   readonly #layers: LayerList;
@@ -24,6 +25,9 @@ export default class CanvasRenderStrategy implements RenderStrategy {
         // we should perform only one render
         this.#clean();
         this.#renderImage(this.#context, options);
+        if (options.borderColor) {
+          this.#renderBorder(options.borderColor, options);
+        }
         debug('render done');
         resolve();
       });
@@ -74,6 +78,22 @@ export default class CanvasRenderStrategy implements RenderStrategy {
         );
       }
     }
+  }
+
+  #renderBorder(color: Color, options: RenderOptions) {
+    const { offset = { x: 0, y: 0 }, size = { x: 0, y: 0 } } = options;
+    this.#context.save();
+    this.#context.strokeStyle = color.toString('rgb');
+    this.#context.lineWidth = 1;
+    this.#context.beginPath();
+    this.#context.rect(
+      Math.max(offset.x - 1, 0),
+      Math.max(offset.y - 1, 0),
+      Math.min(size.x + 1, this.#context.canvas.width),
+      Math.min(size.y + 1, this.#context.canvas.height)
+    );
+    this.#context.stroke();
+    this.#context.restore();
   }
 
   #clean(): void {

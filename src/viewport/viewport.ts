@@ -5,8 +5,9 @@ import type {
   RenderStrategyType,
   RenderStrategyConstructor,
 } from '~/render';
-import { CanvasRenderStrategy } from '~/render';
+import { CanvasRenderStrategy, type RenderOptions } from '~/render';
 import { History } from '~/history';
+import { Color } from '~/color';
 
 const debug = createDebug('viewport');
 
@@ -27,6 +28,10 @@ type ViewportOptions = {
    * Delta to correct HTML Canvas width and height
    */
   htmlSizeDelta?: Rastrr.Point;
+  /**
+   * Useful for transparent background
+   */
+  workingAreaBorderColor?: Color | null;
 };
 
 export enum RenderMode {
@@ -52,6 +57,7 @@ export default class Viewport {
       imageSize: options.imageSize ?? { x: 0, y: 0 },
       minOffset: options.minOffset ?? { x: 0, y: 0 },
       htmlSizeDelta: options.htmlSizeDelta ?? { x: 0, y: 0 },
+      workingAreaBorderColor: options.workingAreaBorderColor ?? null,
     };
     this.#canvas = this.#createCanvas();
 
@@ -107,10 +113,14 @@ export default class Viewport {
   render(): Promise<void> {
     if (this.#renderMode === RenderMode.IMMEDIATE) {
       debug('call strategy render');
-      return this.strategy.render({
+      const options: RenderOptions = {
         offset: this.offset,
         size: this.options.imageSize,
-      });
+      };
+      if (this.options.workingAreaBorderColor != null) {
+        options.borderColor = this.options.workingAreaBorderColor;
+      }
+      return this.strategy.render(options);
     }
     return this.batchRender();
   }

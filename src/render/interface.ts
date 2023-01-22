@@ -1,4 +1,5 @@
 import { LayerList } from '~/layer-list';
+import { Color } from '~/color';
 
 export type RenderStrategyType = 'canvas';
 
@@ -13,8 +14,18 @@ export type BlobOptions = {
 };
 
 export type RenderOptions = {
+  /**
+   * Global offset of the working area
+   */
   offset?: Rastrr.Point;
+  /**
+   * Size of the image
+   */
   size?: Rastrr.Point;
+  /**
+   * Will render border if set
+   */
+  borderColor?: Color;
 };
 
 export interface RenderStrategy {

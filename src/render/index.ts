@@ -1,4 +1,5 @@
 export type {
+  RenderOptions,
   RenderStrategy,
   RenderStrategyType,
   RenderStrategyConstructor,
