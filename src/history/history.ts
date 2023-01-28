@@ -48,9 +48,17 @@ export default class History implements Iterable<Command> {
   async undo(): Promise<boolean> {
     if (this.#lastAppliedCommandIndex >= 0 && !this.isLocked) {
       const id = this.lock();
-      return this.#commands[this.#lastAppliedCommandIndex--]
+      const index = this.#lastAppliedCommandIndex--;
+      const command = this.#commands[index];
+      let success = false;
+      return command
         .undo()
+        .then((done) => {
+          success = done;
+          return done;
+        })
         .finally(() => {
+          this.#emitter.emit('undo', { index, command, success });
           this.unlock(id);
         });
     }
@@ -63,9 +71,17 @@ export default class History implements Iterable<Command> {
       !this.isLocked
     ) {
       const id = this.lock();
-      return this.#commands[++this.#lastAppliedCommandIndex]
+      const index = ++this.#lastAppliedCommandIndex;
+      const command = this.#commands[index];
+      let success = false;
+      return command
         .execute()
+        .then((done) => {
+          success = done;
+          return done;
+        })
         .finally(() => {
+          this.#emitter.emit('redo', { index, command, success });
           this.unlock(id);
         });
     }
@@ -93,21 +109,21 @@ export default class History implements Iterable<Command> {
       const command = this.#commands[this.#lastAppliedCommandIndex];
       if (undo) {
         opIsSuccessful = await command.undo();
-        this.#emitter.emit(
-          'undo',
-          this.#lastAppliedCommandIndex,
+        this.#emitter.emit('undo', {
+          index: this.#lastAppliedCommandIndex,
           command,
-          opIsSuccessful
-        );
+          success: opIsSuccessful,
+          isBatch: true,
+        });
         this.#lastAppliedCommandIndex--;
       } else {
         opIsSuccessful = await command.execute();
-        this.#emitter.emit(
-          'redo',
-          this.#lastAppliedCommandIndex,
+        this.#emitter.emit('redo', {
+          index: this.#lastAppliedCommandIndex,
           command,
-          opIsSuccessful
-        );
+          success: opIsSuccessful,
+          isBatch: true,
+        });
       }
     }
     this.unlock(id);
